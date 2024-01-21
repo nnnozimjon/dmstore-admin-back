@@ -1,0 +1,57 @@
+import fs from 'fs/promises';
+import path from 'path';
+
+export class ValidatorController {
+  static isValidEmail(email: any) {
+    // Regular expression for email validation
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+
+    // Test the email against the regular expression
+    return emailRegex.test(email);
+  }
+
+  static cleanPhoneNumber(phoneNumber: string) {
+    return phoneNumber.replace(/\D/g, '');
+  }
+
+  static validatePhoneNumber(phoneNumber: string) {
+    const cleanPhoneNumber = phoneNumber.replace(/\D/g, '');
+
+    // Check if the cleaned phone number starts with "992" and has a length of exactly 12
+    return cleanPhoneNumber.length === 12;
+  }
+
+  static validateRequiredFields(fields: { [key: string]: any }): {
+    valid: boolean;
+    error: string;
+  } {
+    for (const key in fields) {
+      if (!fields[key]) {
+        return { valid: false, error: `${key} требуется!` };
+      }
+    }
+    return { valid: true, error: '' };
+  }
+
+  static isNameValid(name: any) {
+    // Basic validation for names (only letters and spaces)
+    const nameRegex = /^[A-Za-z\s]+$/;
+    return nameRegex.test(name);
+  }
+
+  static isUsernameValid(username: any) {
+    // Basic validation for usernames (letters, numbers, underscores)
+    const usernameRegex = /^[A-Za-z0-9_]+$/;
+    return usernameRegex.test(username);
+  }
+
+  static async deleteFile(file: any, folder: string) {
+    if (file) {
+      const filePath = path.resolve(
+        __dirname,
+        `../../assets/${folder}/${file?.filename}`
+      );
+      await fs.unlink(filePath);
+    }
+  }
+}

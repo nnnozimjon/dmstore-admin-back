@@ -1,0 +1,51 @@
+{
+  "name": "tajcent",
+  "private": true,
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "scripts": {
+    "nodemon": "nodemon",
+    "build": "tsc && tsc-alias",
+    "start": "ts-node src/index.ts",
+    "watch": "tsc -w",
+    "lint": "eslint \"src/**/*.{js,mjs,cjs,ts,mts,jsx,tsx}\"",
+    "lint:fix": "eslint \"src/**/*.{js,mjs,cjs,ts,mts,jsx,tsx}\" --fix",
+    "postinstall": "husky install && git config --local blame.ignoreRevsFile .git-blame-ignore-revs"
+  },
+  "lint-staged": {
+    "*.{tsx,ts}": "npm run lint:fix"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "eslint-kit": "^10.6.0",
+    "express": "^4.18.2",
+    "http": "^0.0.1-security",
+    "mysql2": "^3.6.5",
+    "nodemon": "^3.0.2",
+    "sequelize": "^6.35.2",
+    "sequelize-cli": "^6.6.2",
+    "sequelize-typescript": "^2.1.6",
+    "ts-node": "^10.9.2",
+    "tsc-alias": "^1.8.8",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.3.3"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^18.4.3",
+    "@commitlint/config-conventional": "^18.4.3",
+    "@types/body-parser": "^1.19.5",
+    "@types/cors": "^2.8.17",
+    "@types/dotenv": "^8.2.0",
+    "@types/express": "^4.17.21",
+    "@types/mysql": "^2.15.24",
+    "@types/node": "^20.10.5",
+    "@types/sequelize": "^4.28.19",
+    "dotenv": "^16.3.1",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.2.0"
+  }
+}

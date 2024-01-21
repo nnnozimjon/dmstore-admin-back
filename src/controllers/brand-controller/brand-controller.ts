@@ -1,0 +1,126 @@
+import { Request, Response } from 'express';
+import { deleteById } from 'generics/deleteById';
+import { getById as TgetById } from 'generics/getById';
+
+import { ValidatorController } from '@controllers/validator-controller';
+import { Brand } from '@models/index';
+
+export class BrandController {
+  static async getAll(req: Request, res: Response) {
+    try {
+      const pageSize = Number.parseInt(req.body.pageSize, 10) || 10;
+      const pageNumber = Number.parseInt(req.body.pageNumber, 10) || 1;
+
+      const offset = (pageNumber - 1) * pageSize;
+
+      const { count, rows: categories } = await Brand.findAndCountAll({
+        limit: pageSize,
+        offset,
+      });
+
+      const totalPages = Math.ceil(count / pageSize);
+
+      res.status(200).json({
+        payload: categories,
+        total_page: totalPages,
+        pageNumber,
+        total_count: count,
+      });
+    } catch (error) {
+      res.status(500).json({
+        code: 500,
+        error,
+        message: 'Что-то пошло не так!',
+      });
+    }
+  }
+
+  static async getById(req: Request, res: Response) {
+    await TgetById(Brand, req, res);
+  }
+
+  static async create(req: Request, res: Response) {
+    try {
+      const { name, category_id } = req.body;
+      const validation = ValidatorController.validateRequiredFields({
+        name,
+        category_id,
+      });
+
+      if (!validation.valid) {
+        return res.status(400).json({
+          message: validation.error,
+          code: 400,
+        });
+      }
+
+      await Brand.create({ name, category_id });
+
+      res.status(200).json({
+        code: 200,
+      });
+    } catch (error: any) {
+      console.error('Error creating brand:', error);
+
+      if (error.name === 'SequelizeUniqueConstraintError') {
+        res.status(400).json({
+          code: 400,
+          message: 'Brand with the same name already exists.',
+        });
+      } else {
+        res.status(500).json({
+          code: 500,
+          error,
+          message: 'Что-то пошло не так!',
+        });
+      }
+    }
+  }
+
+  static async update(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const { name } = req.body;
+
+      const validation = ValidatorController.validateRequiredFields({
+        id,
+        name,
+      });
+
+      if (!validation.valid) {
+        return res.status(400).json({
+          message: validation.error,
+          code: 400,
+        });
+      }
+
+      const existingCategory = await Brand.findByPk(id);
+      if (!existingCategory) {
+        return res.status(404).json({
+          code: 404,
+          message: 'Brand not found.',
+        });
+      }
+      await existingCategory.update({ name, updated_at: new Date() });
+      res.status(200).json({ payload: existingCategory });
+    } catch (error: any) {
+      console.error('Error updating brand:', error);
+      if (error.name === 'SequelizeUniqueConstraintError') {
+        res.status(400).json({
+          code: 400,
+          message: 'Brand with the same name already exists.',
+        });
+      } else {
+        res.status(500).json({
+          code: 500,
+          error,
+          message: 'Что-то пошло не так!',
+        });
+      }
+    }
+  }
+
+  static async delete(req: Request, res: Response) {
+    await deleteById(Brand, req, res);
+  }
+}

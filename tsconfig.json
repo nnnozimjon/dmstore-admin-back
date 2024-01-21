@@ -1,0 +1,38 @@
+{
+  "compilerOptions": {
+    "target": "es2016",
+    "lib": [
+      "es6"
+    ],
+    "module": "commonjs",
+    "rootDir": "src",
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "outDir": "build",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "baseUrl": "src",
+    "paths": {
+      "@assets/*": [
+        "./assets/*"
+      ],
+      "@config/*": [
+        "./config/*"
+      ],
+      "@controllers/*": [
+        "./controllers/*"
+      ],
+      "@models/*": [
+        "./models/*"
+      ],
+      "@routes/*": [
+        "./routes/*"
+      ],
+      "@utils/*": [
+        "./utils/*"
+      ]
+    }
+  }
+}
