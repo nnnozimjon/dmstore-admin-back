@@ -1,19 +1,23 @@
-export const baseApi = '/admin/api/v1';
+export const adminApi = '/admin/api/v1'; // admin panel api
+export const frontApi = '/store/api/v1'; // front api
 
-const merge = (route: string): string => {
-  return baseApi + route;
+const mergeAdminApi = (route: string): string => {
+  return adminApi + route;
+};
+
+const mergeFrontApi = (route: string): string => {
+  return frontApi + route;
 };
 
 export const ApiPaths = {
-  // category
-  category: merge('/category'),
+  // admin paths
+  category: mergeAdminApi('/category'),
+  brand: mergeAdminApi('/brand'),
+  model: mergeAdminApi('/model'),
+  product: mergeAdminApi('/product'),
 
-  // brands
-  brand: merge('/brand'),
+  // merchant paths
 
-  // models
-  model: merge('/model'),
-
-  // products
-  product: merge('/product'),
+  // front paths
+  categories: mergeFrontApi('/category'),
 };

@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
+import { create as TCreate } from 'generics/create';
 import { deleteById } from 'generics/deleteById';
+import { getAll as TGetAll } from 'generics/getAll';
 import { getById as TgetById } from 'generics/getById';
 
 import { ValidatorController } from '@controllers/validator-controller';
@@ -7,25 +9,23 @@ import { Category } from '@models/index';
 
 export class CategoryController {
   static async getAll(req: Request, res: Response) {
+    await TGetAll(Category, req, res, []);
+  }
+
+  static async getAllWithoutPagination(req: Request, res: Response) {
     try {
-      const pageSize = Number.parseInt(req.body.pageSize, 10) || 10;
-      const pageNumber = Number.parseInt(req.body.pageNumber, 10) || 1;
-
-      const offset = (pageNumber - 1) * pageSize;
-
-      const { count, rows: categories } = await Category.findAndCountAll({
-        limit: pageSize,
-        offset,
+      const categories = await Category.findAll({
+        where: { parent_id: null },
+        include: {
+          model: Category,
+          as: 'sub',
+          attributes: ['id', 'name'],
+          required: false,
+        },
+        attributes: ['id', 'name'],
       });
 
-      const totalPages = Math.ceil(count / pageSize);
-
-      res.status(200).json({
-        payload: categories,
-        total_page: totalPages,
-        pageNumber,
-        total_count: count,
-      });
+      res.status(200).send(categories);
     } catch (error) {
       res.status(500).json({
         code: 500,
@@ -40,38 +40,7 @@ export class CategoryController {
   }
 
   static async create(req: Request, res: Response) {
-    try {
-      const { name, parent_id } = req.body;
-      const validation = ValidatorController.validateRequiredFields({
-        name,
-      });
-      // Check validation result
-      if (!validation.valid) {
-        return res.status(400).json({
-          message: validation.error,
-          code: 400,
-        });
-      }
-      // Create the category
-      await Category.create({ name, parent_id });
-      res.status(200).json({
-        code: 200,
-      });
-    } catch (error: any) {
-      console.error('Error creating category:', error);
-      if (error.name === 'SequelizeUniqueConstraintError') {
-        res.status(400).json({
-          code: 400,
-          message: 'Category with the same name already exists.',
-        });
-      } else {
-        res.status(500).json({
-          code: 500,
-          error,
-          message: 'Что-то пошло не так!',
-        });
-      }
-    }
+    await TCreate(Category, req, res, ['name', 'parent_id'], ['name']);
   }
 
   static async update(req: Request, res: Response) {

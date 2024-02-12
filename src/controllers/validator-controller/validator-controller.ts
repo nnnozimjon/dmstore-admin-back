@@ -1,5 +1,9 @@
+import bcrypt from 'bcrypt';
+import { Response } from 'express';
 import fs from 'fs/promises';
 import path from 'path';
+
+import { Users } from '@models/users-model';
 
 export class ValidatorController {
   static isValidEmail(email: any) {
@@ -52,6 +56,36 @@ export class ValidatorController {
         `../../assets/${folder}/${file?.filename}`
       );
       await fs.unlink(filePath);
+    }
+  }
+
+  static async isUserCredentialCorrect(
+    res: Response,
+    phone_number: string,
+    password: string
+  ) {
+    try {
+      const user = await Users.findOne({
+        where: {
+          phone_number,
+        },
+      });
+
+      if (user?.phone_number) {
+        // Compare the provided password with the hashed password in the database
+        const passwordMatch = await bcrypt.compare(password, user.password);
+        if (passwordMatch) {
+          return user;
+        }
+        return null; // Passwords do not match
+      }
+
+      return null; // user not found
+    } catch (error: any) {
+      return res.json({
+        code: 500,
+        message: 'Что-то пошло не так!',
+      });
     }
   }
 }

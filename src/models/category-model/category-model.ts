@@ -24,6 +24,7 @@ Category.init(
     },
     parent_id: {
       type: DataTypes.INTEGER,
+      allowNull: true,
     },
     created_at: {
       type: DataTypes.DATE,
@@ -32,12 +33,16 @@ Category.init(
     },
     updated_at: {
       type: DataTypes.DATE,
+      allowNull: true,
     },
   },
   {
     sequelize,
     timestamps: false,
-    modelName: 'Category',
+    modelName: 'category',
     tableName: 'category',
   }
 );
+
+Category.hasMany(Category, { foreignKey: 'parent_id', as: 'sub' });
+// Category.belongsTo(Category, { foreignKey: 'parent_id', as: 'sub' });
