@@ -1,10 +1,7 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
 import { authenticateToken } from 'generics/authenticatToken';
-import { uploadImage } from 'generics/uploadImage';
 import multer from 'multer';
 
-import { AuthController } from '@controllers/auth-controller';
-import { CategoryController } from '@controllers/category-controller';
 import { Controllers } from '@controllers/index';
 import { ApiPaths } from '@utils/api-paths';
 
@@ -18,6 +15,9 @@ const Router = express.Router();
 //                                                                              //
 //////////////////////////////////////////////////////////////////////////////////
 
+Router.post(ApiPaths.register, Controllers.AuthController.register);
+Router.post(ApiPaths.login, Controllers.AuthController.signIn);
+
 //////////////////////////////////////////////////////////////////////////////////
 //                                                                              //
 //                                Admin - API                                   //
@@ -26,7 +26,7 @@ const Router = express.Router();
 
 // categories
 Router.get(ApiPaths.category, Controllers.CategoryController.getAll);
-Router.get(ApiPaths.category + '/:id', CategoryController.getById);
+Router.get(ApiPaths.category + '/:id', Controllers.CategoryController.getById);
 Router.post(ApiPaths.category, Controllers.CategoryController.create);
 Router.put(ApiPaths.category + '/:id', Controllers.CategoryController.update);
 
@@ -63,27 +63,40 @@ Router.delete(ApiPaths.product + '/:id', Controllers.ProductController.delete);
 //////////////////////////////////////////////////////////////////////////////////
 
 Router.get(
-  ApiPaths.categories,
+  ApiPaths.frontCategory,
   Controllers.CategoryController.getAllWithoutPagination
 );
-
-Router.post(
-  ApiPaths.product + '/image',
-  upload.fields([{ name: 'files' }, { name: 'example' }]),
-  async (req: Request, res: Response) => {
-    // const { example } = req.body;
-    const { files }: any = req.files;
-    // console.log(files[0]);
-    const path = await uploadImage(files[0], 'products');
-    res.send(path);
-  }
-);
-Router.get('/testing', authenticateToken, AuthController.signIn);
 
 //////////////////////////////////////////////////////////////////////////////////
 //                                                                              //
 //                                Merchant - API                                //
 //                                                                              //
 //////////////////////////////////////////////////////////////////////////////////
+
+// product
+Router.get(
+  ApiPaths.merchantProduct,
+  Controllers.MerchantProductController.getAll
+);
+
+Router.post(
+  ApiPaths.merchantProduct,
+  [authenticateToken, upload.fields([{ name: 'images' }])],
+  Controllers.MerchantProductController.create
+);
+
+Router.put(
+  ApiPaths.merchantProduct,
+  Controllers.MerchantProductController.update
+);
+
+Router.delete(
+  ApiPaths.merchantProduct,
+  Controllers.MerchantProductController.delete
+);
+
+// otp
+
+Router.post(ApiPaths.merchantOtp, Controllers.otpController.generateAndSendOTP);
 
 export default Router;

@@ -4,19 +4,15 @@ import { sequelize } from '@config/db';
 
 // import { Users } from '..';
 
-export class Merchant extends Model {
+export class Client extends Model {
   id!: number;
   user_id!: number;
-  storeName!: string;
-  description?: string;
-  header_image?: string;
-  store_image?: string;
   updated_at!: Date;
 
   // Additional methods or associations can be defined here
 }
 
-Merchant.init(
+Client.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -28,27 +24,17 @@ Merchant.init(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    storeName: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-    },
-    description: {
-      type: DataTypes.STRING(255),
-    },
-    header_image: {
-      type: DataTypes.STRING(255),
-    },
-    store_image: {
-      type: DataTypes.STRING(255),
-    },
     updated_at: {
       type: DataTypes.DATE,
     },
   },
   {
     sequelize,
-    modelName: 'Merchant',
-    tableName: 'merchants',
+    modelName: 'Client',
+    tableName: 'clients',
     timestamps: false,
   }
 );
+
+// Define the association with the User model
+// Users.hasOne(Client, { foreignKey: 'user_id' });

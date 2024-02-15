@@ -4,7 +4,6 @@ import { sequelize } from '@config/db';
 
 export class Users extends Model {
   id!: number;
-  username!: string;
   password!: string;
   phone_number!: string;
   fio!: string;

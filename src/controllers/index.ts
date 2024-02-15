@@ -2,11 +2,14 @@ import { AuthController } from './auth-controller';
 import { BrandController } from './brand-controller';
 import { CategoryController } from './category-controller';
 import { ImageController } from './image-controller';
+import { MerchantProductController } from './merchant.product-controller';
 import { ModelController } from './model-controller';
+import { otpController } from './otp-controller';
 import { ProductController } from './product-controller';
 import { ValidatorController } from './validator-controller';
 
 export const Controllers = {
+  MerchantProductController,
   AuthController,
   ValidatorController,
   ProductController,
@@ -14,4 +17,5 @@ export const Controllers = {
   CategoryController,
   BrandController,
   ImageController,
+  otpController,
 };

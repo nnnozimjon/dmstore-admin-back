@@ -5,20 +5,20 @@ import { getAll as TGetAll } from 'generics/getAll';
 import { getById as TgetById } from 'generics/getById';
 
 import { ValidatorController } from '@controllers/validator-controller';
-import { Product } from '@models/index';
+import { Products } from '@models/index';
 
 export class ProductController {
   static async getAll(req: Request, res: Response) {
-    await TGetAll(Product, req, res, []);
+    await TGetAll(Products, req, res, []);
   }
 
   static async getById(req: Request, res: Response) {
-    await TgetById(Product, req, res);
+    await TgetById(Products, req, res);
   }
 
   static async create(req: Request, res: Response) {
     await TCreate(
-      Product,
+      Products,
       req,
       res,
       ['name', 'description', 'category_id', 'brand_id', 'model_id'],
@@ -40,7 +40,7 @@ export class ProductController {
           code: 400,
         });
       }
-      const existingCategory = await Product.findByPk(id);
+      const existingCategory = await Products.findByPk(id);
       if (!existingCategory) {
         return res.status(404).json({
           code: 404,
@@ -74,6 +74,6 @@ export class ProductController {
   }
 
   static async delete(req: Request, res: Response) {
-    await deleteById(Product, req, res);
+    await deleteById(Products, req, res);
   }
 }

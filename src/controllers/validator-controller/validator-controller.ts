@@ -59,6 +59,30 @@ export class ValidatorController {
     }
   }
 
+  static async isUserByPhoneNumberAvailable(
+    res: Response,
+    phone_number: string
+  ) {
+    try {
+      const user = await Users.findOne({
+        where: {
+          phone_number,
+        },
+      });
+
+      if (user?.phone_number) {
+        return true;
+      }
+
+      return false;
+    } catch (error) {
+      return res.json({
+        code: 500,
+        message: 'Что-то пошло не так!',
+      });
+    }
+  }
+
   static async isUserCredentialCorrect(
     res: Response,
     phone_number: string,

@@ -1,11 +1,17 @@
 import bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
+import jwt from 'jsonwebtoken';
 
+import { otpController } from '@controllers/otp-controller';
 import { ValidatorController } from '@controllers/validator-controller';
 import { Users } from '@models/users-model';
+import { secretKey } from '@utils/secret-key';
 
+interface CustomRequest extends Request {
+  user?: string;
+}
 export class AuthController {
-  static async signIn(req: Request, res: Response) {
+  static async signIn(req: CustomRequest, res: Response) {
     try {
       const { phone_number, password } = req.body;
 
@@ -34,8 +40,15 @@ export class AuthController {
         });
       }
 
+      const token = jwt.sign(
+        { id: user.id, phone_number: user.phone_number },
+        secretKey
+      );
       // send token
-      res.send(user);
+      res.json({
+        code: 200,
+        token,
+      });
     } catch (error) {
       res.json({
         code: 500,
@@ -46,8 +59,8 @@ export class AuthController {
 
   static async register(req: Request, res: Response) {
     try {
-      const { phone_number, password, fio, user_role } = req.body;
-      const requiredParams = { phone_number, password, fio, user_role };
+      const { phone_number, password, fio, user_role, otp } = req.body;
+      const requiredParams = { phone_number, password, fio, user_role, otp };
 
       const validation =
         ValidatorController.validateRequiredFields(requiredParams);
@@ -60,9 +73,12 @@ export class AuthController {
       }
 
       const isPhoneNumberAvailable =
-        ValidatorController.isValidEmail(phone_number);
+        await ValidatorController.isUserByPhoneNumberAvailable(
+          res,
+          phone_number
+        );
 
-      if (!isPhoneNumberAvailable) {
+      if (isPhoneNumberAvailable) {
         return res.status(400).json({
           code: 400,
           message: 'Account with this phone number already exists!',
@@ -73,6 +89,16 @@ export class AuthController {
         return res.status(400).json({
           code: 400,
           message: 'Пароль слишком короткий!',
+        });
+      }
+
+      // check otp
+      const isOtpCorrect = await otpController.verifyOTP(phone_number, otp);
+
+      if (!isOtpCorrect) {
+        return res.json({
+          code: 400,
+          message: 'Wrong otp code!',
         });
       }
 
