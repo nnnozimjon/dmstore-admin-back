@@ -1,25 +1,32 @@
 import { promises as fs } from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 
-type fileRoute = 'categories' | 'products';
+type FileRoute = 'categories' | 'products';
 
 export const uploadImage = async (
-  image?: any,
-  file?: fileRoute
-): Promise<string | null> => {
-  if (image) {
-    try {
-      const filename = `${uuidv4()}.${image?.originalname?.split('.')[1]}`;
-      const imagePath = `src/assets/${file}/${filename}`;
+  images: Express.Multer.File[] | undefined,
+  fileRoute: FileRoute
+): Promise<string[] | null> => {
+  if (!images || images.length === 0) {
+    return null;
+  }
+
+  try {
+    const uploadedImages: string[] = [];
+
+    for (const image of images) {
+      const filename = `${uuidv4()}.${image.originalname.split('.').pop()}`;
+      const imagePath = `src/assets/${fileRoute}/${filename}`;
 
       await fs.writeFile(imagePath, image.buffer);
 
-      return filename;
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      // Handle error as needed
+      uploadedImages.push(filename);
     }
-  }
 
-  return null;
+    return uploadedImages;
+  } catch (error) {
+    console.error('Error uploading image:', error);
+    // Handle error as needed
+    throw error; // Rethrow the error for higher-level handling
+  }
 };

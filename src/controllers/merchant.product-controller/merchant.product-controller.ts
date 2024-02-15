@@ -1,21 +1,19 @@
 import { Request, Response } from 'express';
-import { ServerErrorLog } from 'generics/ServerErrorLog';
+import { Status200, Status400, StatusServerError } from 'generics/HttpStatuses';
+import { uploadImage } from 'generics/uploadImage';
 
 import { ValidatorController } from '@controllers/validator-controller';
 import { Products } from '@models/product-model';
-import { uploadImage } from 'generics/uploadImage';
 
 export class MerchantProductController {
   static async getAll() { }
 
   static async create(req: Request, res: Response) {
     try {
-      const images = req.files;
+      const data: any = req.files;
       const user = (req as any).user;
       const created_by = user.id;
-
-      console.log(images);
-      uploadImage
+      const images = data.images;
 
       const {
         name,
@@ -48,19 +46,32 @@ export class MerchantProductController {
         category_id,
       };
 
+      if (!images) {
+        return Status400(res);
+      }
+
+      // Price , not null
+      if ((price !== null && Number(price) <= 0) || isNaN(Number(price))) {
+        return Status400(res, 'Цена должно быть числом больше нуля.');
+      }
+      // Quantity || qty
+      if ((qty !== null && Number(qty) <= 0) || isNaN(Number(qty))) {
+        return Status400(res, 'Количество должно быть числом больше нуля.');
+      }
+
       const validation =
         ValidatorController.validateRequiredFields(requiredParams);
 
       if (!validation.valid) {
-        return res.json({
-          code: 400,
-          message: validation.error,
-        });
+        Status400(res);
       }
 
-      const newProduct = await Products.create({
+      const imageNames = await uploadImage(images, 'products');
+      const commaSeparatedString: string | undefined = imageNames?.join(',');
+
+      await Products.create({
         created_by,
-        images,
+        images: commaSeparatedString,
         name,
         service_type,
         price,
@@ -81,12 +92,9 @@ export class MerchantProductController {
         status,
       });
 
-      res.json({
-        code: 200,
-        payload: newProduct,
-      });
+      Status200(res, null);
     } catch (error) {
-      ServerErrorLog(res);
+      StatusServerError(res);
     }
   }
 

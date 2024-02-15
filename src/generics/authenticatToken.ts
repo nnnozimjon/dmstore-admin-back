@@ -16,12 +16,11 @@ export const authenticateToken = (
   }
 
   jwt.verify(token, secretKey, async (err, user: any) => {
-    const id = user.id;
-
     if (err) {
       return res.status(403).json({ code: 403, message: 'Forbidden' });
     }
 
+    const id = user.id;
     const isUser = await Users.findOne({ where: { id } });
 
     if (!isUser) {
