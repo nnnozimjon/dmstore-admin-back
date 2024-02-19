@@ -67,6 +67,11 @@ Router.get(
   Controllers.CategoryController.getAllWithoutPagination
 );
 
+Router.get(
+  ApiPaths.frontProduct + '/image/:image',
+  Controllers.ImageController.productImage
+);
+
 //////////////////////////////////////////////////////////////////////////////////
 //                                                                              //
 //                                Merchant - API                                //

@@ -1,3 +1,4 @@
+export const baseUrl = 'http://localhost:8002';
 export const adminApi = '/admin/api/v1'; // admin panel api
 export const frontApi = '/store/api/v1'; // front api
 export const merchantApi = '/merchant/api/v1'; // merchant api
@@ -29,4 +30,5 @@ export const ApiPaths = {
 
   // front paths
   frontCategory: mergeFrontApi('/category'),
+  frontProduct: mergeFrontApi('/product'),
 };

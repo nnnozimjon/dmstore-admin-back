@@ -2,10 +2,11 @@ import { Request, Response } from 'express';
 import { create as TCreate } from 'generics/create';
 import { deleteById } from 'generics/deleteById';
 import { getAll as TGetAll } from 'generics/getAll';
-import { getById as TgetById } from 'generics/getById';
+import { Status200, Status400, StatusServerError } from 'generics/HttpStatuses';
 
 import { ValidatorController } from '@controllers/validator-controller';
 import { Products } from '@models/index';
+import { baseUrl, frontApi } from '@utils/api-paths';
 
 export class ProductController {
   static async getAll(req: Request, res: Response) {
@@ -13,7 +14,72 @@ export class ProductController {
   }
 
   static async getById(req: Request, res: Response) {
-    await TgetById(Products, req, res);
+    try {
+      const { id } = req.params;
+      // Check if the ID is provided
+      if (!id) {
+        return Status400(res);
+      }
+      // Convert the ID to a number
+      const itemId = Number.parseInt(id, 10);
+      // Check if the ID is a valid number
+      if (isNaN(itemId)) {
+        return Status400(res);
+      }
+      // Find the item by ID
+      const item = await Products.findOne({
+        where: {
+          id: itemId,
+          status: 'active',
+        },
+      });
+      // Check if the item exists
+      if (!item) {
+        return res.status(404).json({ error: 'Item not found' });
+      }
+      const currentDate = new Date();
+      const daysOfWeek = [
+        'Sunday',
+        'Monday',
+        'Tuesday',
+        'Wednesday',
+        'Thursday',
+        'Friday',
+        'Saturday',
+      ];
+
+      const today = daysOfWeek[currentDate.getDay()];
+
+      const images = item.images.split(',').map((url) => {
+        return baseUrl + frontApi + '/product/image/' + url;
+      });
+
+      Status200(res, null, {
+        payload: {
+          id: item.id,
+          created_by: item.id,
+          images,
+          name: item.name,
+          service_type: item.service_type,
+          price:
+            today === 'Friday' && item.price_in_friday != null
+              ? item.price_in_friday
+              : item.price,
+          description: item.description,
+          discount: item.discount,
+          colors: item.colors,
+          qty: item.qty,
+          condition: item.condition,
+          shipping: item.shipping,
+          year: item.year,
+          vincode: item.vincode,
+          rooms: item.rooms,
+        },
+      });
+    } catch (error) {
+      console.error('Error fetching item:', error);
+      StatusServerError(res);
+    }
   }
 
   static async create(req: Request, res: Response) {

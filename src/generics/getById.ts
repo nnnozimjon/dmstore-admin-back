@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import { Model, ModelCtor } from 'sequelize';
 
+import { Status200, Status400, StatusServerError } from './HttpStatuses';
+
 export async function getById<T extends Model>(
   model: ModelCtor<T>,
   req: Request,
@@ -11,7 +13,7 @@ export async function getById<T extends Model>(
 
     // Check if the ID is provided
     if (!id) {
-      return res.status(400).json({ error: 'ID parameter is required' });
+      return Status400(res);
     }
 
     // Convert the ID to a number
@@ -19,7 +21,7 @@ export async function getById<T extends Model>(
 
     // Check if the ID is a valid number
     if (isNaN(itemId)) {
-      return res.status(400).json({ error: 'Invalid ID parameter' });
+      return Status400(res);
     }
 
     // Find the item by ID
@@ -30,13 +32,9 @@ export async function getById<T extends Model>(
       return res.status(404).json({ error: 'Item not found' });
     }
 
-    res.status(200).json({ payload: item });
+    Status200(res, null, { payload: item });
   } catch (error) {
     console.error('Error fetching item:', error);
-    res.status(500).json({
-      code: 500,
-      error,
-      message: 'Что-то пошло не так!',
-    });
+    StatusServerError(res);
   }
 }
