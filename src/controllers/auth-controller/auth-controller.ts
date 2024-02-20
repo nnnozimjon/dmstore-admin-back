@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
+import { Status400 } from 'generics/HttpStatuses';
 import jwt from 'jsonwebtoken';
 
 import { otpController } from '@controllers/otp-controller';
@@ -21,10 +22,7 @@ export class AuthController {
         ValidatorController.validateRequiredFields(requiredParams);
 
       if (!validation.valid) {
-        return res.json({
-          code: 400,
-          message: 'Отсутствуют обязательные поля!',
-        });
+        return Status400(res, 'Отсутствуют обязательные поля!');
       }
 
       const user: any = await ValidatorController.isUserCredentialCorrect(
@@ -34,10 +32,7 @@ export class AuthController {
       );
 
       if (!user) {
-        return res.status(400).json({
-          code: 400,
-          message: 'Неверные учетные данные!',
-        });
+        return Status400(res, 'Неверные учетные данные!');
       }
 
       const token = jwt.sign(
@@ -48,6 +43,7 @@ export class AuthController {
       res.json({
         code: 200,
         token,
+        message: 'Авторизация прошла успешно. Добро пожаловать!',
       });
     } catch (error) {
       res.json({
