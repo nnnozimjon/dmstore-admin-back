@@ -18,6 +18,8 @@ const mergeMerchantApi = (route: string): string => {
 export const ApiPaths = {
   register: '/store/api/v1/auth/sign-up',
   login: '/store/api/v1/auth/sign-in',
+  sendOtpToRegister: '/store/api/v1/auth/otp',
+  isUserAvailable: '/store/api/v1/auth/availability',
   // admin paths
   category: mergeAdminApi('/category'),
   brand: mergeAdminApi('/brand'),

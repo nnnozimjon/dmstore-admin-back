@@ -1,4 +1,6 @@
 import { Request, Response } from 'express';
+import { Status200, Status400, StatusServerError } from 'generics/HttpStatuses';
+import sequelize from 'sequelize';
 
 import { OTP } from '@models/otp-model';
 
@@ -16,37 +18,35 @@ export class otpController {
   }
 
   static async generateAndSendOTP(req: Request, res: Response) {
-    const { phone_number } = req.body;
-    const otpValue = otpController.generateRandomCode();
-    const expirationTime = new Date(Date.now() + 5 * 60 * 1000);
+    try {
+      const { phone_number } = req.body;
+      const otpValue = otpController.generateRandomCode();
+      const expirationTime = new Date(Date.now() + 5 * 60 * 1000);
 
-    if (!phone_number) {
-      return res.json({
-        code: 400,
-        message: 'Phone number required!',
-      });
-    }
-
-    await OTP.update(
-      { is_used: 1 },
-      {
-        where: {
-          phone_number,
-        },
+      if (!phone_number) {
+        return Status400(res);
       }
-    );
 
-    // Save OTP to the database
-    await OTP.create({
-      phone_number,
-      otp_value: otpValue,
-      expiration_time: expirationTime,
-    });
+      await OTP.update(
+        { is_used: 1 },
+        {
+          where: {
+            phone_number,
+          },
+        }
+      );
 
-    res.json({
-      code: 200,
-      message: 'Otp sent!',
-    });
+      // Save OTP to the database
+      await OTP.create({
+        phone_number,
+        otp_value: otpValue,
+        expiration_time: expirationTime,
+      });
+
+      Status200(res);
+    } catch (error) {
+      StatusServerError(res);
+    }
   }
 
   static verifyOTP = async (phone_number: string, enteredOTP: string) => {
@@ -56,15 +56,33 @@ export class otpController {
         phone_number,
         otp_value: enteredOTP,
         is_used: false,
-        // expiration_time: {
-        // [OTP.Sequelize.Op.gte]: new Date(), // Check if not expired
-        // },
+        expiration_time: {
+          [sequelize.Op.gte]: new Date(), // 5 minutes ago
+        },
       },
     });
 
     if (otpRecord?.phone_number) {
       // Mark OTP as used
       await otpRecord.update({ is_used: true });
+      return true;
+    }
+    return false;
+  };
+
+  static checkOTP = async (phone_number: string, enteredOTP: string) => {
+    // Check if the entered OTP is valid
+    const otpRecord = await OTP.findOne({
+      where: {
+        phone_number,
+        otp_value: enteredOTP,
+        is_used: false,
+        expiration_time: {
+          [sequelize.Op.gte]: new Date(), // 5 minutes ago
+        },
+      },
+    });
+    if (otpRecord?.phone_number) {
       return true;
     }
     return false;

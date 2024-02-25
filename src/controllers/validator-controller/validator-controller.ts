@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import { Response } from 'express';
 import fs from 'fs/promises';
+import { StatusServerError } from 'generics/HttpStatuses';
 import path from 'path';
 
 import { Users } from '@models/users-model';
@@ -76,10 +77,7 @@ export class ValidatorController {
 
       return false;
     } catch (error) {
-      return res.json({
-        code: 500,
-        message: 'Что-то пошло не так!',
-      });
+      StatusServerError(res);
     }
   }
 

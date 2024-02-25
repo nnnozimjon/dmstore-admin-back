@@ -1,5 +1,6 @@
 import express from 'express';
 import { authenticateToken } from 'generics/authenticatToken';
+import { otpRateLimit } from 'generics/otpRateLimit';
 import multer from 'multer';
 
 import { Controllers } from '@controllers/index';
@@ -17,6 +18,22 @@ const Router = express.Router();
 
 Router.post(ApiPaths.register, Controllers.AuthController.register);
 Router.post(ApiPaths.login, Controllers.AuthController.signIn);
+
+Router.post(
+  ApiPaths.sendOtpToRegister,
+  [otpRateLimit],
+  Controllers.AuthController.sendOtpToRegister
+);
+
+Router.post(
+  ApiPaths.sendOtpToRegister + '/verify',
+  Controllers.AuthController.verifyOtpRegister
+);
+
+Router.post(
+  ApiPaths.isUserAvailable,
+  Controllers.AuthController.isUserAvailable
+);
 
 //////////////////////////////////////////////////////////////////////////////////
 //                                                                              //
