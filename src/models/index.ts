@@ -7,3 +7,4 @@ export { Models } from './model-model';
 export { OTP } from './otp-model';
 export { Products } from './product-model';
 export { Users } from './users-model';
+export { Widgets } from './widgets-model';

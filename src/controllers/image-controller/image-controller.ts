@@ -16,10 +16,10 @@ export class ImageController {
     });
   }
 
-  static async header(req: Request, res: Response) {
+  static async widgetImage(req: Request, res: Response) {
     const image = req.params.image;
 
-    fs.readFile(`src/assets/img/header/${image}`, (err, data) => {
+    fs.readFile(`src/assets/widgets/${image}`, (err, data) => {
       if (err) {
         console.error(`Error reading file: ${err}`);
         return res.status(500).send('Error reading file');

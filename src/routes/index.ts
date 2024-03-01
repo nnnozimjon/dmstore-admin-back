@@ -80,6 +80,16 @@ Router.delete(ApiPaths.product + '/:id', Controllers.ProductController.delete);
 //////////////////////////////////////////////////////////////////////////////////
 
 Router.get(
+  ApiPaths.frontProduct,
+  Controllers.FrontProductController.getByPagination
+);
+
+Router.get(
+  ApiPaths.frontProduct + '/:id',
+  Controllers.FrontProductController.getById
+);
+
+Router.get(
   ApiPaths.frontCategory,
   Controllers.CategoryController.getAllWithoutPagination
 );
@@ -87,6 +97,13 @@ Router.get(
 Router.get(
   ApiPaths.frontProduct + '/image/:image',
   Controllers.ImageController.productImage
+);
+
+Router.get(ApiPaths.frontWidget, Controllers.WidgetsController.getAll);
+
+Router.get(
+  ApiPaths.frontWidget + '/image/:image',
+  Controllers.ImageController.widgetImage
 );
 
 //////////////////////////////////////////////////////////////////////////////////
