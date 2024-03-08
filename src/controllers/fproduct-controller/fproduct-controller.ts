@@ -47,6 +47,7 @@ export class FrontProductController {
         ...(condition && { condition }),
         status: 'active',
       };
+
       const orderCriteria: any =
         order === 'asc'
           ? [['id', 'ASC']]

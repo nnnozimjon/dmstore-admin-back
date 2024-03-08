@@ -2,6 +2,8 @@ import { DataTypes, Model } from 'sequelize';
 
 import { sequelize } from '@config/db';
 
+import { Category } from '..';
+
 export class Widgets extends Model {
   id!: number;
   category_id!: number;
@@ -42,3 +44,5 @@ Widgets.init(
     tableName: 'widgets',
   }
 );
+
+Widgets.belongsTo(Category, { foreignKey: 'category_id', as: 'ct' });

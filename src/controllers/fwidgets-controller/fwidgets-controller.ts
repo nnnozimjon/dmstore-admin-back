@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { Status200, Status400, StatusServerError } from 'generics/HttpStatuses';
 import { literal } from 'sequelize';
 
+import { Category } from '@models/category-model';
 import { Widgets } from '@models/widgets-model';
 import { baseUrl, frontApi } from '@utils/api-paths';
 
@@ -19,6 +20,11 @@ export class WidgetsController {
       const widgets = await Widgets.findAll({
         where: {
           location,
+        },
+        include: {
+          model: Category,
+          as: 'ct',
+          attributes: ['name'],
         },
         attributes: [
           'id',

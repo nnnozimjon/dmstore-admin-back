@@ -36,7 +36,12 @@ export class AuthController {
       }
 
       const token = jwt.sign(
-        { id: user.id, phone_number: user.phone_number, fio: user.fio },
+        {
+          id: user.id,
+          phone_number: user.phone_number,
+          fio: user.fio,
+          user_role: user.user_role,
+        },
         secretKey
       );
       // send token
