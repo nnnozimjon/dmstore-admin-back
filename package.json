@@ -1,12 +1,12 @@
 {
-  "name": "tajcent",
+  "name": "dmstore-admin-back",
   "private": true,
   "version": "1.0.0",
   "main": "src/index.ts",
   "scripts": {
     "nodemon": "nodemon",
     "build": "tsc && tsc-alias",
-    "start": "ts-node src/index.ts",
+    "start": "ts-node build/index.js",
     "watch": "tsc -w",
     "lint": "eslint \"src/**/*.{js,mjs,cjs,ts,mts,jsx,tsx}\"",
     "lint:fix": "eslint \"src/**/*.{js,mjs,cjs,ts,mts,jsx,tsx}\" --fix",
