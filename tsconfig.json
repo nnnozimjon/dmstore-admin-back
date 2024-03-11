@@ -20,5 +20,6 @@
       "@utils/*": ["./utils/*"],
       "@generics/*": ["./generics/*"]
     }
-  }
+  },
+  "include": ["src"]
 }
