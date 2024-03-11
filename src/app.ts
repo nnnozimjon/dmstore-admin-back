@@ -1,7 +1,8 @@
 import cors from 'cors';
 import express from 'express';
 import http from 'http';
-import Router from 'routes';
+
+import Router from './routes';
 
 const App = express();
 const server = http.createServer(App);

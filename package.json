@@ -6,7 +6,7 @@
   "scripts": {
     "nodemon": "nodemon",
     "build": "tsc && tsc-alias",
-    "start": "ts-node build/index.js",
+    "start": "node -r tsconfig-paths/register build/src/index.js",
     "watch": "tsc -w",
     "lint": "eslint \"src/**/*.{js,mjs,cjs,ts,mts,jsx,tsx}\"",
     "lint:fix": "eslint \"src/**/*.{js,mjs,cjs,ts,mts,jsx,tsx}\" --fix",

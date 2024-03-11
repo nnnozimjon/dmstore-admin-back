@@ -1,9 +1,7 @@
 {
   "compilerOptions": {
     "target": "es2016",
-    "lib": [
-      "es6"
-    ],
+    "lib": ["es6"],
     "module": "commonjs",
     "resolveJsonModule": true,
     "allowJs": true,
@@ -12,26 +10,15 @@
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "noImplicitAny": true,
-    "baseUrl": "src",
+    "baseUrl": "./src",
     "paths": {
-      "@assets/*": [
-        "./assets/*"
-      ],
-      "@config/*": [
-        "./config/*"
-      ],
-      "@controllers/*": [
-        "./controllers/*"
-      ],
-      "@models/*": [
-        "./models/*"
-      ],
-      "@routes/*": [
-        "./routes/*"
-      ],
-      "@utils/*": [
-        "./utils/*"
-      ]
+      "@assets/*": ["./assets/*"],
+      "@config/*": ["./config/*"],
+      "@controllers/*": ["./controllers/*"],
+      "@models/*": ["./models/*"],
+      "@routes/*": ["./routes/*"],
+      "@utils/*": ["./utils/*"],
+      "@generics/*": ["./generics/*"]
     }
   }
 }

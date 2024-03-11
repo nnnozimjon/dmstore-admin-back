@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import path from 'path';
 
-import server from './src/app';
+import server from './app';
 
 const { parsed } = dotenv.config({
   path: path.resolve(__dirname, '../', '.env'),
