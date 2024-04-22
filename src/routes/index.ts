@@ -1,5 +1,5 @@
 import express from 'express';
-import { authenticateToken } from 'generics/authenticatToken';
+import { authenticateTokenMerchant } from 'generics/authenticatToken';
 import { otpRateLimit } from 'generics/otpRateLimit';
 import multer from 'multer';
 
@@ -120,7 +120,7 @@ Router.get(
 
 Router.post(
   ApiPaths.merchantProduct,
-  [authenticateToken, upload.fields([{ name: 'images' }])],
+  [authenticateTokenMerchant, upload.fields([{ name: 'images' }])],
   Controllers.MerchantProductController.create
 );
 

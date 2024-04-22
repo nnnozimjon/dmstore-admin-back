@@ -15,6 +15,7 @@ export class FrontProductController {
         pageNumber = 1,
         pageSize = 20,
         category_id,
+        sub_category_id,
         brand_id,
         model_id,
         name,
@@ -28,6 +29,7 @@ export class FrontProductController {
 
       const conditions = {
         ...(Number(category_id) && { category_id }),
+        ...(Number(sub_category_id) && { sub_category_id }),
         ...(Number(brand_id) && { brand_id }),
         ...(Number(model_id) && { model_id }),
         ...(name && {

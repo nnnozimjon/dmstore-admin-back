@@ -17,6 +17,7 @@ export class Products extends Model {
   discount?: number;
   description!: string;
   category_id!: number;
+  sub_category_id?: number;
   feature_id?: number;
   brand_id?: number;
   model_id?: number;
@@ -75,6 +76,10 @@ Products.init(
     category_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
+    },
+    sub_category_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
     },
     feature_id: {
       type: DataTypes.INTEGER,

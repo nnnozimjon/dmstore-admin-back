@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/naming-convention */
+/* eslint-disable unicorn/prefer-number-properties */
+/* eslint-disable sonarjs/no-collapsible-if */
 import { Request, Response } from 'express';
 import { Status200, Status400, StatusServerError } from 'generics/HttpStatuses';
 import { uploadImage } from 'generics/uploadImage';
@@ -115,7 +118,7 @@ export class MerchantProductController {
 
       Status200(res, null);
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       StatusServerError(res);
     }
   }

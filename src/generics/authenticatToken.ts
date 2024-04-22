@@ -4,7 +4,7 @@ import { Users } from 'models/users-model';
 
 import { secretKey } from '@utils/secret-key';
 
-export const authenticateToken = (
+export const authenticateTokenMerchant = (
   req: Request,
   res: Response,
   next: NextFunction
@@ -21,7 +21,7 @@ export const authenticateToken = (
     }
 
     const id = user.id;
-    const isUser = await Users.findOne({ where: { id } });
+    const isUser = await Users.findOne({ where: { id, user_role: 'merchant' } });
 
     if (!isUser) {
       return res.status(401).json({ code: 401, message: 'Unauthorized' });
