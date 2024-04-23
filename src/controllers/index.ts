@@ -9,6 +9,7 @@ import { ModelController } from './model-controller';
 import { otpController } from './otp-controller';
 import { ProductController } from './product-controller';
 import { ValidatorController } from './validator-controller';
+import { MerchantCategoryController } from './merchant.category-controller'
 
 export const Controllers = {
   FrontProductController,
@@ -22,4 +23,5 @@ export const Controllers = {
   ImageController,
   otpController,
   WidgetsController,
+  MerchantCategoryController,
 };

@@ -1,0 +1,1 @@
+export { MerchantCategoryController } from './merchant.category-controller'

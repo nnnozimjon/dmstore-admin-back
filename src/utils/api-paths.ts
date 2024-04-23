@@ -30,6 +30,7 @@ export const ApiPaths = {
   // merchant paths
   merchantProduct: mergeMerchantApi('/product'),
   merchantOtp: mergeMerchantApi('/otp'),
+  merchantCategory: mergeMerchantApi('/category'),
 
   // front paths
   frontCategory: mergeFrontApi('/category'),

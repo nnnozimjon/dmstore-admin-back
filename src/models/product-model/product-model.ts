@@ -22,6 +22,7 @@ export class Products extends Model {
   brand_id?: number;
   model_id?: number;
   colors?: string[]; // Assuming colors can be an array of strings
+  sizes?: string[];
   qty?: number;
   condition?: string; // Uncommented
   shipping?: string;
@@ -91,6 +92,9 @@ Products.init(
       type: DataTypes.INTEGER,
     },
     colors: {
+      type: DataTypes.STRING,
+    },
+    sizes: {
       type: DataTypes.STRING,
     },
     qty: {
