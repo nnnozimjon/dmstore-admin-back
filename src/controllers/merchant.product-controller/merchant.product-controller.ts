@@ -2,18 +2,18 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable unicorn/prefer-number-properties */
 /* eslint-disable sonarjs/no-collapsible-if */
-import { Request, Response } from 'express';
-import fs from 'fs';
-import { Status200, Status400, StatusServerError } from 'generics/HttpStatuses';
-import { uploadImage } from 'generics/uploadImage';
-import path from 'path';
-import { literal } from 'sequelize';
+import fs from "fs";
+import { Request, Response } from "express";
+import { Status200, Status400, StatusServerError } from "generics/HttpStatuses";
+import { uploadImage } from "generics/uploadImage";
+import path from "path";
+import { literal } from "sequelize";
 
-import { ValidatorController } from '@controllers/validator-controller';
-import { Products } from '@models/product-model';
-import { baseUrl, frontApi } from '@utils/api-paths';
+import { ValidatorController } from "@controllers/validator-controller";
+import { Products } from "@models/product-model";
+import { baseUrl, frontApi } from "@utils/api-paths";
 
-const url = baseUrl + frontApi + '/product/image/';
+const url = baseUrl + frontApi + "/product/image/";
 
 export class MerchantProductController {
   static async getById(req: Request, res: Response) {
@@ -24,7 +24,7 @@ export class MerchantProductController {
 
       // Validate id
       if (!id) {
-        return Status400(res, '');
+        return Status400(res, "");
       }
 
       const productInfo = await Products.findOne({
@@ -33,19 +33,22 @@ export class MerchantProductController {
           id,
         },
         attributes: [
-          'id',
-          'name',
-          'price',
-          'description',
-          'qty',
-          'shipping',
-          'colors',
-          'sizes',
+          "id",
+          "name",
+          "price",
+          "description",
+          "qty",
+          "shipping",
+          "colors",
+          "sizes",
+          "price_in_friday",
+          "category_id",
+          "sub_category_id",
           [
             literal(
-              `CONCAT(:baseUrl, REPLACE(images, ",",CONCAT(',',:baseUrl)))`
+              `CONCAT(:baseUrl, REPLACE(images, ",",CONCAT(',',:baseUrl)))`,
             ),
-            'images',
+            "images",
           ],
         ],
         replacements: { baseUrl: url },
@@ -55,14 +58,14 @@ export class MerchantProductController {
       if (!productInfo) {
         return res
           .status(404)
-          .json({ code: 404, message: 'Продукт не найден!' });
+          .json({ code: 404, message: "Продукт не найден!" });
       }
 
       const payload = {
         payload: productInfo,
       };
 
-      Status200(res, '', payload);
+      Status200(res, "", payload);
     } catch (error) {
       console.log(error);
       return StatusServerError(res);
@@ -78,21 +81,21 @@ export class MerchantProductController {
         where: {
           created_by,
         },
-        order: [['id', 'DESC']],
+        order: [["id", "DESC"]],
         attributes: [
-          'id',
-          'name',
+          "id",
+          "name",
           [
             literal(
-              `CONCAT(:baseUrl, REPLACE(images, ",",CONCAT(',',:baseUrl)))`
+              `CONCAT(:baseUrl, REPLACE(images, ",",CONCAT(',',:baseUrl)))`,
             ),
-            'images',
+            "images",
           ],
         ],
         replacements: { baseUrl: url },
       });
 
-      Status200(res, '', { payload: products });
+      Status200(res, "", { payload: products });
     } catch (error) {
       console.log(error);
       return StatusServerError(res);
@@ -156,13 +159,13 @@ export class MerchantProductController {
       // Quantity || qty
       if (qty) {
         if ((qty !== null && Number(qty) <= 0) || isNaN(Number(qty))) {
-          return Status400(res, 'Количество должно быть числом больше нуля.');
+          return Status400(res, "Количество должно быть числом больше нуля.");
         }
       }
 
       // Price , not null
       if ((price !== null && Number(price) <= 0) || isNaN(Number(price))) {
-        return Status400(res, 'Цена должно быть числом больше нуля.');
+        return Status400(res, "Цена должно быть числом больше нуля.");
       }
 
       // price_in_friday
@@ -175,13 +178,13 @@ export class MerchantProductController {
         ) {
           return Status400(
             res,
-            'Пятничная цена должно быть числом больше нуля и меньше обычный цена.'
+            "Пятничная цена должно быть числом больше нуля и меньше обычный цена.",
           );
         }
       }
 
-      const imageNames = await uploadImage(images, 'products');
-      const commaSeparatedString: string | undefined = imageNames?.join(',');
+      const imageNames = await uploadImage(images, "products");
+      const commaSeparatedString: string | undefined = imageNames?.join(",");
 
       await Products.create({
         created_by,
@@ -200,7 +203,7 @@ export class MerchantProductController {
         ...(String(sizes) && { sizes }),
         ...(Number(qty) && { qty }),
         condition,
-        ...(shipping ? { shipping } : { shipping: 'free' }),
+        ...(shipping ? { shipping } : { shipping: "free" }),
         year,
         vincode,
         rooms,
@@ -214,7 +217,77 @@ export class MerchantProductController {
     }
   }
 
-  static async update() {}
+  static async update(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const { name, price, description, qty, shipping, images } = req.body;
+      const user = (req as any).user;
+      const created_by = user.id;
+
+      // const prevImages = [];
+      // const newImages = [];
+
+      // const deletedImages = [];
+
+      // Validate id
+      if (!id) {
+        return res.status(400).json({ error: "Invalid ID" });
+      }
+
+      // Find product by ID
+      let product = await Products.findOne({
+        where: {
+          created_by,
+          id,
+        },
+      });
+
+      // Check if product exists
+      if (!product) {
+        return res.status(404).json({ error: "Product not found" });
+      }
+
+      // Update product data
+      product.name = name || product.name;
+      product.price = price || product.price;
+      product.description = description || product.description;
+      product.qty = qty || product.qty;
+      product.shipping = shipping || product.shipping;
+
+      // Update images if provided
+      if (images) {
+        // Delete old images from server
+        const oldImages = product.images.split(",");
+        oldImages.forEach((image) => {
+          const imagePath = path.join(
+            __dirname,
+            "..",
+            "..",
+            "assets",
+            "products",
+            image,
+          );
+          if (fs.existsSync(imagePath)) {
+            fs.unlinkSync(imagePath);
+          }
+        });
+
+        // Save new images to server
+        const newImages = images.split(",");
+        product.images = newImages.join(",");
+      }
+
+      // Save updated product data to database
+      await product.save();
+
+      // Respond with success message
+      return res.status(200).json({ message: "Product updated successfully" });
+    } catch (error) {
+      console.error(error);
+      // Log error and send 500 status for server errors
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+  }
 
   static async deleteById(req: Request, res: Response) {
     try {
@@ -223,7 +296,7 @@ export class MerchantProductController {
       const created_by = user.id;
 
       if (!id) {
-        return res.status(400).json({ error: 'Invalid ID' });
+        return res.status(400).json({ error: "Invalid ID" });
       }
 
       const product = await Products.findOne({
@@ -234,18 +307,18 @@ export class MerchantProductController {
       });
 
       if (!product) {
-        return res.status(404).json({ error: 'Product not found' });
+        return res.status(404).json({ error: "Product not found" });
       }
 
-      const images = product.images.split(',');
+      const images = product.images.split(",");
       images.forEach((image) => {
         const imagePath = path.join(
           __dirname,
-          '..',
-          '..',
-          'assets',
-          'products',
-          image
+          "..",
+          "..",
+          "assets",
+          "products",
+          image,
         );
         if (fs.existsSync(imagePath)) {
           fs.unlinkSync(imagePath);
@@ -259,7 +332,7 @@ export class MerchantProductController {
         },
       });
 
-      Status200(res, '');
+      Status200(res, "");
     } catch (error) {
       console.log(error);
       return StatusServerError(res);
