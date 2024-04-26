@@ -5,6 +5,7 @@ import multer from "multer";
 
 import { Controllers } from "@controllers/index";
 import { ApiPaths } from "@utils/api-paths";
+import { MailerController } from "@controllers/mailer-controller";
 
 const upload = multer();
 
@@ -149,7 +150,6 @@ Router.delete(
   Controllers.MerchantProductController.deleteById,
 );
 
-// otp
 
 Router.post(ApiPaths.merchantOtp, Controllers.otpController.generateAndSendOTP);
 

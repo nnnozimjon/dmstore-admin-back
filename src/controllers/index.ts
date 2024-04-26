@@ -10,6 +10,7 @@ import { otpController } from './otp-controller';
 import { ProductController } from './product-controller';
 import { ValidatorController } from './validator-controller';
 import { MerchantCategoryController } from './merchant.category-controller'
+import { MailerController } from './mailer-controller'
 
 export const Controllers = {
   FrontProductController,
@@ -24,4 +25,5 @@ export const Controllers = {
   otpController,
   WidgetsController,
   MerchantCategoryController,
+  MailerController
 };

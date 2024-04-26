@@ -5,7 +5,7 @@ import { sequelize } from '@config/db';
 
 export class OTP extends Model {
   id!: number;
-  phone_number!: string;
+  email!: string;
   otp_value!: string;
   expiration_time!: Date;
   is_used!: boolean;
@@ -20,7 +20,7 @@ OTP.init(
       primaryKey: true,
       autoIncrement: true,
     },
-    phone_number: {
+    email: {
       type: DataTypes.STRING,
       allowNull: false,
     },

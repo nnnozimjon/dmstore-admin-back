@@ -3,6 +3,7 @@ import { Status200, Status400, StatusServerError } from 'generics/HttpStatuses';
 import sequelize from 'sequelize';
 
 import { OTP } from '@models/otp-model';
+import { MailerController } from '@controllers/mailer-controller';
 
 export class otpController {
   static generateRandomCode() {
@@ -19,11 +20,11 @@ export class otpController {
 
   static async generateAndSendOTP(req: Request, res: Response) {
     try {
-      const { phone_number } = req.body;
+      const { email } = req.body;
       const otpValue = otpController.generateRandomCode();
       const expirationTime = new Date(Date.now() + 5 * 60 * 1000);
 
-      if (!phone_number) {
+      if (!email) {
         return Status400(res);
       }
 
@@ -31,14 +32,20 @@ export class otpController {
         { is_used: 1 },
         {
           where: {
-            phone_number,
+            email,
           },
         }
       );
 
+      const isOtpSent = await MailerController.sendOtp(email, otpValue)
+
+      if(!isOtpSent) {
+        return StatusServerError(res)
+      }
+
       // Save OTP to the database
       await OTP.create({
-        phone_number,
+        email,
         otp_value: otpValue,
         expiration_time: expirationTime,
       });
@@ -49,11 +56,11 @@ export class otpController {
     }
   }
 
-  static verifyOTP = async (phone_number: string, enteredOTP: string) => {
+  static verifyOTP = async (email: string, enteredOTP: string) => {
     // Check if the entered OTP is valid
     const otpRecord = await OTP.findOne({
       where: {
-        phone_number,
+        email,
         otp_value: enteredOTP,
         is_used: false,
         expiration_time: {
@@ -62,7 +69,7 @@ export class otpController {
       },
     });
 
-    if (otpRecord?.phone_number) {
+    if (otpRecord?.email) {
       // Mark OTP as used
       await otpRecord.update({ is_used: true });
       return true;
@@ -70,11 +77,11 @@ export class otpController {
     return false;
   };
 
-  static checkOTP = async (phone_number: string, enteredOTP: string) => {
+  static checkOTP = async (email: string, enteredOTP: string) => {
     // Check if the entered OTP is valid
     const otpRecord = await OTP.findOne({
       where: {
-        phone_number,
+        email,
         otp_value: enteredOTP,
         is_used: false,
         expiration_time: {
@@ -82,7 +89,7 @@ export class otpController {
         },
       },
     });
-    if (otpRecord?.phone_number) {
+    if (otpRecord?.email) {
       return true;
     }
     return false;

@@ -60,18 +60,18 @@ export class ValidatorController {
     }
   }
 
-  static async isUserByPhoneNumberAvailable(
+  static async isUserByEmailAvailable(
     res: Response,
-    phone_number: string
+    email: string
   ) {
     try {
       const user = await Users.findOne({
         where: {
-          phone_number,
+          email,
         },
       });
 
-      if (user?.phone_number) {
+      if (user?.email) {
         return true;
       }
 
@@ -83,17 +83,17 @@ export class ValidatorController {
 
   static async isUserCredentialCorrect(
     res: Response,
-    phone_number: string,
+    email: string,
     password: string
   ) {
     try {
       const user = await Users.findOne({
         where: {
-          phone_number,
+          email,
         },
       });
 
-      if (user?.phone_number) {
+      if (user?.email) {
         // Compare the provided password with the hashed password in the database
         const passwordMatch = await bcrypt.compare(password, user.password);
         if (passwordMatch) {

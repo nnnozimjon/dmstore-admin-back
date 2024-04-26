@@ -14,9 +14,9 @@ interface CustomRequest extends Request {
 export class AuthController {
   static async signIn(req: CustomRequest, res: Response) {
     try {
-      const { phone_number, password } = req.body;
+      const {  email, password } = req.body;
 
-      const requiredParams = { phone_number, password };
+      const requiredParams = { email, password };
 
       const validation =
         ValidatorController.validateRequiredFields(requiredParams);
@@ -27,7 +27,7 @@ export class AuthController {
 
       const user: any = await ValidatorController.isUserCredentialCorrect(
         res,
-        phone_number,
+        email,
         password
       );
 
@@ -38,6 +38,7 @@ export class AuthController {
       const token = jwt.sign(
         {
           id: user.id,
+          email: user.email,
           phone_number: user.phone_number,
           fio: user.fio,
           user_role: user.user_role,
@@ -64,17 +65,17 @@ export class AuthController {
 
   static async verifyOtpRegister(req: Request, res: Response) {
     try {
-      const { phone_number, otp } = req.body;
+      const { email, otp } = req.body;
 
       if (!otp) {
         return Status400(res);
       }
 
-      if (!phone_number) {
+      if (!email) {
         return Status400(res);
       }
 
-      const isCorrect = await otpController.verifyOTP(phone_number, otp);
+      const isCorrect = await otpController.verifyOTP(email, otp);
 
       if (!isCorrect) {
         return Status400(res, 'Неверный OTP код!');
@@ -88,16 +89,16 @@ export class AuthController {
 
   static async isUserAvailable(req: Request, res: Response) {
     try {
-      const { phone_number } = req.body;
+      const { email } = req.body;
 
-      if (!phone_number) {
+      if (!email) {
         return Status400(res);
       }
 
       const isUserAvailable =
-        await ValidatorController.isUserByPhoneNumberAvailable(
+        await ValidatorController.isUserByEmailAvailable(
           res,
-          phone_number
+          email
         );
 
       if (isUserAvailable) {
@@ -112,8 +113,8 @@ export class AuthController {
 
   static async register(req: Request, res: Response) {
     try {
-      const { phone_number, password, fio, user_role, otp } = req.body;
-      const requiredParams = { phone_number, password, fio, user_role, otp };
+      const { email, password, fio, user_role, otp, phone_number } = req.body;
+      const requiredParams = { email, phone_number, password, fio, user_role, otp };
 
       const validation =
         ValidatorController.validateRequiredFields(requiredParams);
@@ -122,13 +123,13 @@ export class AuthController {
         return Status400(res);
       }
 
-      const isPhoneNumberAvailable =
-        await ValidatorController.isUserByPhoneNumberAvailable(
+      const isEmailAvailable =
+        await ValidatorController.isUserByEmailAvailable(
           res,
-          phone_number
+          email
         );
 
-      if (isPhoneNumberAvailable) {
+      if (isEmailAvailable) {
         return Status400(res, 'Аккаунт уже существует!');
       }
 
@@ -137,7 +138,7 @@ export class AuthController {
       }
 
       // check otp
-      const isOtpCorrect = await otpController.verifyOTP(phone_number, otp);
+      const isOtpCorrect = await otpController.verifyOTP(email, otp);
 
       if (!isOtpCorrect) {
         return Status400(res, 'Неверный OTP код!');
@@ -146,7 +147,7 @@ export class AuthController {
       const hashedPassword = await bcrypt.hash(password, 10);
 
       Users.create({
-        phone_number,
+        phone_number: email,
         password: hashedPassword,
         fio,
         user_role,
