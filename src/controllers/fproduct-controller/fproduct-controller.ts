@@ -1,12 +1,13 @@
 /* eslint-disable no-console */
-import { Request, Response } from 'express';
-import { Status200, Status400, StatusServerError } from 'generics/HttpStatuses';
-import { fn, literal, Op } from 'sequelize';
+import { Request, Response } from "express";
+import { Status200, Status400, StatusServerError } from "generics/HttpStatuses";
+import { fn, literal, Op } from "sequelize";
 
-import { Products } from '@models/product-model';
-import { baseUrl, frontApi } from '@utils/api-paths';
+import { Products } from "@models/product-model";
+import { baseUrl, frontApi } from "@utils/api-paths";
+import { Merchant } from "@models/merchant-model";
 
-const url = baseUrl + frontApi + '/product/image/';
+const url = baseUrl + frontApi + "/product/image/";
 
 export class FrontProductController {
   static async getByPagination(req: Request, res: Response) {
@@ -25,9 +26,14 @@ export class FrontProductController {
         rooms,
         condition,
         order,
+        ids
       } = req.query;
 
+      
+      const productIds = ids ? String(ids)?.split(',') : [];
+
       const conditions = {
+        ...(productIds?.length !== 0 && { id: productIds }),
         ...(Number(category_id) && { category_id }),
         ...(Number(sub_category_id) && { sub_category_id }),
         ...(Number(brand_id) && { brand_id }),
@@ -47,17 +53,17 @@ export class FrontProductController {
         ...(Number(year) && { year }),
         ...(Number(rooms) && { rooms }),
         ...(condition && { condition }),
-        status: 'active',
+        status: "active",
       };
 
       const orderCriteria: any =
-        order === 'asc'
-          ? [['id', 'ASC']]
-          : order === 'desc'
-            ? [['id', 'DESC']]
-            : order === 'rand'
-              ? [fn('RAND')]
-              : [['id', 'ASC']];
+        order === "asc"
+          ? [["id", "ASC"]]
+          : order === "desc"
+            ? [["id", "DESC"]]
+            : order === "rand"
+              ? [fn("RAND")]
+              : [["id", "ASC"]];
 
       // Perform the Sequelize query
       const products = await Products.findAll({
@@ -65,30 +71,43 @@ export class FrontProductController {
         order: orderCriteria,
         offset: (Number(pageNumber) - 1) * Number(pageSize),
         attributes: [
-          'id',
-          'created_by',
+          "id",
+          "created_by",
           [
             literal(
-              `CONCAT(:baseUrl, REPLACE(images, ",",CONCAT(',',:baseUrl)))`
+              `CONCAT(:baseUrl, REPLACE(images, ",",CONCAT(',',:baseUrl)))`,
             ),
-            'images',
+            "images",
           ],
-          'name',
+          "name",
           [
             literal(
-              '(CASE WHEN price_in_friday IS NOT NULL AND DAYOFWEEK(CURRENT_DATE) = 6 THEN price_in_friday ELSE price END)'
+              "(CASE WHEN price_in_friday IS NOT NULL AND DAYOFWEEK(CURRENT_DATE) = 6 THEN price_in_friday ELSE price END)",
             ),
-            'price',
+            "price",
           ],
-          'description',
-          'qty',
+          "description",
+          "qty",
+        ],
+        include: [
+          {
+            model: Merchant,
+            attributes: ["storeName"],
+            required: true,
+            as: 'Merchant',
+          },
         ],
         replacements: { baseUrl: url },
         limit: Number(pageSize),
       });
 
+      const flattenedProducts = products.map(product => {
+        const { Merchant, ...rest } = product.toJSON();
+        return { ...rest, storeName: Merchant.storeName };
+      });
+
       // Send the products as a response
-      Status200(res, '', { payload: products });
+      Status200(res, "", { payload: flattenedProducts });
     } catch (error) {
       console.log(error);
       StatusServerError(res);
@@ -112,40 +131,40 @@ export class FrontProductController {
       const item = await Products.findOne({
         where: {
           id: itemId,
-          status: 'active',
+          status: "active",
         },
         attributes: [
-          'id',
-          'created_by',
+          "id",
+          "created_by",
           [
             literal(
-              `CONCAT(:baseUrl, REPLACE(images, ",",CONCAT(',',:baseUrl)))`
+              `CONCAT(:baseUrl, REPLACE(images, ",",CONCAT(',',:baseUrl)))`,
             ),
-            'images',
+            "images",
           ],
-          'name',
+          "name",
           [
             literal(
-              '(CASE WHEN price_in_friday IS NOT NULL AND DAYOFWEEK(CURRENT_DATE) = 6 THEN price_in_friday ELSE price END)'
+              "(CASE WHEN price_in_friday IS NOT NULL AND DAYOFWEEK(CURRENT_DATE) = 6 THEN price_in_friday ELSE price END)",
             ),
-            'price',
+            "price",
           ],
-          'description',
-          'qty',
+          "description",
+          "qty",
         ],
         replacements: { baseUrl: url },
       });
 
       // Check if the item exists
       if (!item) {
-        return Status400(res, 'Продукт не найден!');
+        return Status400(res, "Продукт не найден!");
       }
 
       Status200(res, null, {
         payload: item,
       });
     } catch (error) {
-      console.error('Error fetching item:', error);
+      console.error("Error fetching item:", error);
       StatusServerError(res);
     }
   }

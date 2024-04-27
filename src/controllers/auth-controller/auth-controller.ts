@@ -14,7 +14,7 @@ interface CustomRequest extends Request {
 export class AuthController {
   static async signIn(req: CustomRequest, res: Response) {
     try {
-      const {  email, password } = req.body;
+      const { email, password } = req.body;
 
       const requiredParams = { email, password };
 
@@ -52,10 +52,7 @@ export class AuthController {
         message: 'Авторизация прошла успешно. Добро пожаловать!',
       });
     } catch (error) {
-      res.json({
-        code: 500,
-        message: '',
-      });
+      StatusServerError(res)
     }
   }
 
@@ -122,6 +119,13 @@ export class AuthController {
       if (!validation.valid) {
         return Status400(res);
       }
+      
+      // check otp
+      const isOtpCorrect = await otpController.verifyOTP(email, otp);
+
+      if (!isOtpCorrect) {
+        return Status400(res, 'Неверный OTP код!');
+      }
 
       const isEmailAvailable =
         await ValidatorController.isUserByEmailAvailable(
@@ -137,17 +141,12 @@ export class AuthController {
         return Status400(res, 'Пароль слишком короткий!');
       }
 
-      // check otp
-      const isOtpCorrect = await otpController.verifyOTP(email, otp);
-
-      if (!isOtpCorrect) {
-        return Status400(res, 'Неверный OTP код!');
-      }
 
       const hashedPassword = await bcrypt.hash(password, 10);
 
       Users.create({
-        phone_number: email,
+        email,
+        phone_number,
         password: hashedPassword,
         fio,
         user_role,

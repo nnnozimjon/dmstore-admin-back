@@ -1,6 +1,7 @@
 import { DataTypes, Model } from 'sequelize';
 
 import { sequelize } from '@config/db';
+import { Merchant } from '..';
 
 // import { Brand } from '../brand-model'; // Assuming you have a Brand model
 // import { Category } from '../category-model'; // Assuming you have a Category model
@@ -136,3 +137,5 @@ Products.init(
     timestamps: false,
   }
 );
+
+Products.belongsTo(Merchant, { foreignKey: 'created_by', targetKey: 'user_id' })
