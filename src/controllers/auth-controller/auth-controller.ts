@@ -86,10 +86,14 @@ export class AuthController {
 
   static async isUserAvailable(req: Request, res: Response) {
     try {
-      const { email } = req.body;
+      const { email, phone_number } = req.body;
 
       if (!email) {
         return Status400(res);
+      }
+
+      if(!phone_number) {
+        return Status400(res)
       }
 
       const isUserAvailable =
@@ -99,7 +103,14 @@ export class AuthController {
         );
 
       if (isUserAvailable) {
-        return Status400(res, 'Аккаунт уже существует!');
+        return Status400(res, 'Пользователь с указанным вами адресом электронной почты зарегистрирован!');
+      }
+
+      const isUserPhoneNumberRegistered = await ValidatorController.isUserByPhoneNumberAvailable(res, phone_number)
+
+
+      if(isUserPhoneNumberRegistered) {
+        return Status400(res, 'Пользователь с указанным вами номером телефона зарегистрирован!')
       }
 
       Status200(res);
