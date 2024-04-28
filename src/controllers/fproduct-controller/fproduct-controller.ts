@@ -26,11 +26,10 @@ export class FrontProductController {
         rooms,
         condition,
         order,
-        ids
+        ids,
       } = req.query;
 
-      
-      const productIds = ids ? String(ids)?.split(',') : [];
+      const productIds = ids ? String(ids)?.split(",") : [];
 
       const conditions = {
         ...(productIds?.length !== 0 && { id: productIds }),
@@ -94,14 +93,14 @@ export class FrontProductController {
             model: Merchant,
             attributes: ["storeName"],
             required: true,
-            as: 'Merchant',
+            as: "Merchant",
           },
         ],
         replacements: { baseUrl: url },
         limit: Number(pageSize),
       });
 
-      const flattenedProducts = products.map(product => {
+      const flattenedProducts = products.map((product) => {
         const { Merchant, ...rest } = product.toJSON();
         return { ...rest, storeName: Merchant.storeName };
       });
@@ -136,6 +135,12 @@ export class FrontProductController {
         attributes: [
           "id",
           "created_by",
+          "category_id",
+          "sub_category_id",
+          "shipping",
+          "colors",
+          "sizes",
+          "created_at",
           [
             literal(
               `CONCAT(:baseUrl, REPLACE(images, ",",CONCAT(',',:baseUrl)))`,
