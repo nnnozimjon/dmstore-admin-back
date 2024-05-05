@@ -36,4 +36,5 @@ export const ApiPaths = {
   frontCategory: mergeFrontApi('/category'),
   frontProduct: mergeFrontApi('/product'),
   frontWidget: mergeFrontApi('/widget'),
+  frontOrderProduct: mergeFrontApi('/order'),
 };

@@ -106,9 +106,7 @@ export class MerchantProductController {
     try {
       const data: any = req.files;
       const user = (req as any).user;
-      // images: string[];
-      // id: number;
-      // name: string;
+      
       const created_by = user.id;
 
       const images = data.images;
