@@ -71,7 +71,6 @@ export class FrontProductController {
         offset: (Number(pageNumber) - 1) * Number(pageSize),
         attributes: [
           "id",
-          "created_by",
           [
             literal(
               `CONCAT(:baseUrl, REPLACE(images, ",",CONCAT(',',:baseUrl)))`,
@@ -85,13 +84,15 @@ export class FrontProductController {
             ),
             "price",
           ],
+          "sizes",
+          "colors",
           "description",
           "qty",
         ],
         include: [
           {
             model: Merchant,
-            attributes: ["storeName"],
+            attributes: ["storeName", "id"],
             required: true,
             as: "Merchant",
           },
@@ -102,7 +103,11 @@ export class FrontProductController {
 
       const flattenedProducts = products.map((product) => {
         const { Merchant, ...rest } = product.toJSON();
-        return { ...rest, storeName: Merchant.storeName };
+        return {
+          ...rest,
+          storeName: Merchant.storeName,
+          created_by: Merchant.id,
+        };
       });
 
       // Send the products as a response

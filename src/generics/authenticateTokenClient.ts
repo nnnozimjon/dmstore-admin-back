@@ -12,19 +12,19 @@ export const authenticateTokenClient = (
   const token: string | undefined = req.header('Authorization')?.split(' ')[1];
 
   if (!token) {
-    return res.status(401).json({ code: 401, message: 'Unauthorized' });
+    return res.status(401).json({ code: 401, message: 'Неавторизованный' });
   }
 
   jwt.verify(token, secretKey, async (err, user: any) => {
     if (err) {
-      return res.status(403).json({ code: 403, message: 'Forbidden' });
+      return res.status(403).json({ code: 403, message: 'Запрещено' });
     }
 
     const id = user.id;
     const isUser = await Users.findOne({ where: { id, user_role: 'client' } });
 
     if (!isUser) {
-      return res.status(401).json({ code: 401, message: 'Unauthorized' });
+      return res.status(401).json({ code: 401, message: 'Неавторизованный' });
     }
 
     (req as any).user = user;

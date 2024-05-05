@@ -116,6 +116,12 @@ Router.post(
   Controllers.OrdersController.create
 );
 
+Router.get(
+  ApiPaths.frontOrderProduct,
+  [authenticateTokenClient],
+  Controllers.OrdersController.getAll
+);
+
 //////////////////////////////////////////////////////////////////////////////////
 //                                                                              //
 //                                Merchant - API                                //

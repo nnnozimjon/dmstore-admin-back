@@ -1,20 +1,91 @@
 /* eslint-disable no-console */
-import { Request, Response } from 'express';
+import { Request, Response } from "express";
+import { literal } from "sequelize";
 
-import { sequelize } from '@config/db';
-import { ValidatorController } from '@controllers/validator-controller';
+import { sequelize } from "@config/db";
+import { ValidatorController } from "@controllers/validator-controller";
 import {
   Status200,
   Status400,
   StatusServerError,
-} from '@generics/HttpStatuses';
-import { Merchant } from '@models/merchant-model';
-import { OrderItems } from '@models/order-items-model';
-import { Orders } from '@models/orders-model';
-import { Products } from '@models/product-model';
+} from "@generics/HttpStatuses";
+import { Merchant } from "@models/merchant-model";
+import { OrderItems } from "@models/order-items-model";
+import { Orders } from "@models/orders-model";
+import { Products } from "@models/product-model";
+import { Statuses } from "@models/statuses";
+import { baseUrl, frontApi } from "@utils/api-paths";
+
+const url = baseUrl + frontApi + "/product/image/";
 
 export class OrdersController {
-  static async getAll(req: Request, res: Response) {}
+  static async getAll(req: Request, res: Response) {
+    try {
+      const user = (req as any).user;
+      const client_id = user?.id;
+
+      const { type } = req.query;
+
+      const statuses = type === "completed" ? [4] : [1, 2, 3, 5, 6, 7, 8];
+
+      const userOrders = await Orders.findAll({
+        where: {
+          client_id,
+        },
+        attributes: ["id"],
+        order: [["id", "DESC"]],
+        include: [
+          {
+            model: OrderItems,
+            attributes: ["id"],
+            include: [
+              {
+                model: Products,
+                attributes: [
+                  "id",
+                  "name",
+                  [
+                    literal(
+                      `CONCAT(:baseUrl, REPLACE(images, ",",CONCAT(',',:baseUrl)))`,
+                    ),
+                    "images",
+                  ],
+                ],
+              },
+              {
+                model: Statuses,
+                attributes: ["name", "id"],
+              },
+            ],
+            where: {
+              status_id: statuses,
+            },
+          },
+        ],
+        replacements: { baseUrl: url },
+      });
+
+      const formattedOrders = userOrders.flatMap((order: any) => {
+        const orderItems = order?.OrderItems?.map((or: any) => {
+          return {
+            order_id: order?.id,
+            order_item_id: or?.id,
+            order_status: or?.Status?.name,
+            product_id: or?.Product?.id,
+            product_img: or?.Product?.images,
+            product_name: or?.Product?.name,
+          };
+        });
+
+        return orderItems;
+      });
+
+      Status200(res, "", { payload: formattedOrders });
+    } catch (error) {
+      StatusServerError(res);
+      console.log(error);
+    }
+  }
 
   static async getById(req: Request, res: Response) {}
 
@@ -24,7 +95,7 @@ export class OrdersController {
     try {
       const { phone_number, comment, products, address } = req.body;
       const user = (req as any).user;
-      
+
       const client_id = user?.id;
 
       const requiredParams = { client_id, phone_number, address };
@@ -37,7 +108,7 @@ export class OrdersController {
       }
 
       if (products?.length === 0) {
-        return Status400(res, 'Поле «Товары» не может быть пустым!');
+        return Status400(res, "Поле «Товары» не может быть пустым!");
       }
 
       // Start transaction
@@ -54,7 +125,7 @@ export class OrdersController {
           status_id: 1,
           address,
         },
-        { transaction }
+        { transaction },
       );
 
       const orderId = order.id;
@@ -67,7 +138,7 @@ export class OrdersController {
           ValidatorController.validateRequiredFields(requiredParams);
 
         if (!validation.valid) {
-          return Status400(res, 'Параметры поля «Товары» указаны неправильно!');
+          return Status400(res, "Параметры поля «Товары» указаны неправильно!");
         }
 
         // check product exists
@@ -78,7 +149,7 @@ export class OrdersController {
         });
 
         if (!productDetails) {
-          return Status400(res, 'ID продукта не найден!');
+          return Status400(res, "ID продукта не найден!");
         }
 
         // check store exists
@@ -89,7 +160,7 @@ export class OrdersController {
         });
 
         if (!storeDetails) {
-          return Status400(res, 'ID магазина не найден!');
+          return Status400(res, "ID магазина не найден!");
         }
 
         const price = productDetails.price;
@@ -108,7 +179,7 @@ export class OrdersController {
             ...(size && { size }),
             ...(color && { color }),
           },
-          { transaction }
+          { transaction },
         );
       }
 
