@@ -1,10 +1,13 @@
+/* eslint-disable sonarjs/no-identical-functions */
 import bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
 import { Status200, Status400, StatusServerError } from 'generics/HttpStatuses';
 import jwt from 'jsonwebtoken';
 
+import { sequelize } from '@config/db';
 import { otpController } from '@controllers/otp-controller';
 import { ValidatorController } from '@controllers/validator-controller';
+import { Merchant } from '@models/merchant-model';
 import { Users } from '@models/users-model';
 import { secretKey } from '@utils/secret-key';
 
@@ -52,7 +55,7 @@ export class AuthController {
         message: 'Авторизация прошла успешно. Добро пожаловать!',
       });
     } catch (error) {
-      StatusServerError(res)
+      StatusServerError(res);
     }
   }
 
@@ -92,25 +95,33 @@ export class AuthController {
         return Status400(res);
       }
 
-      if(!phone_number) {
-        return Status400(res)
+      if (!phone_number) {
+        return Status400(res);
       }
 
-      const isUserAvailable =
-        await ValidatorController.isUserByEmailAvailable(
-          res,
-          email
-        );
+      const isUserAvailable = await ValidatorController.isUserByEmailAvailable(
+        res,
+        email
+      );
 
       if (isUserAvailable) {
-        return Status400(res, 'Пользователь с указанным вами адресом электронной почты зарегистрирован!');
+        return Status400(
+          res,
+          'Пользователь с указанным вами адресом электронной почты зарегистрирован!'
+        );
       }
 
-      const isUserPhoneNumberRegistered = await ValidatorController.isUserByPhoneNumberAvailable(res, phone_number)
+      const isUserPhoneNumberRegistered =
+        await ValidatorController.isUserByPhoneNumberAvailable(
+          res,
+          phone_number
+        );
 
-
-      if(isUserPhoneNumberRegistered) {
-        return Status400(res, 'Пользователь с указанным вами номером телефона зарегистрирован!')
+      if (isUserPhoneNumberRegistered) {
+        return Status400(
+          res,
+          'Пользователь с указанным вами номером телефона зарегистрирован!'
+        );
       }
 
       Status200(res);
@@ -122,7 +133,14 @@ export class AuthController {
   static async register(req: Request, res: Response) {
     try {
       const { email, password, fio, user_role, otp, phone_number } = req.body;
-      const requiredParams = { email, phone_number, password, fio, user_role, otp };
+      const requiredParams = {
+        email,
+        phone_number,
+        password,
+        fio,
+        user_role,
+        otp,
+      };
 
       const validation =
         ValidatorController.validateRequiredFields(requiredParams);
@@ -130,7 +148,7 @@ export class AuthController {
       if (!validation.valid) {
         return Status400(res);
       }
-      
+
       // check otp
       const isOtpCorrect = await otpController.verifyOTP(email, otp);
 
@@ -138,11 +156,10 @@ export class AuthController {
         return Status400(res, 'Неверный OTP код!');
       }
 
-      const isEmailAvailable =
-        await ValidatorController.isUserByEmailAvailable(
-          res,
-          email
-        );
+      const isEmailAvailable = await ValidatorController.isUserByEmailAvailable(
+        res,
+        email
+      );
 
       if (isEmailAvailable) {
         return Status400(res, 'Аккаунт уже существует!');
@@ -151,7 +168,6 @@ export class AuthController {
       if (password.length <= 8) {
         return Status400(res, 'Пароль слишком короткий!');
       }
-
 
       const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -165,6 +181,127 @@ export class AuthController {
 
       Status200(res, 'Пользователь успешно создан!');
     } catch (error) {
+      StatusServerError(res);
+    }
+  }
+
+  // merchant
+  static async signInMerchant(req: CustomRequest, res: Response) {
+    try {
+      const { email, password } = req.body;
+
+      const requiredParams = { email, password };
+
+      const validation =
+        ValidatorController.validateRequiredFields(requiredParams);
+
+      if (!validation.valid) {
+        return Status400(res, 'Отсутствуют обязательные поля!');
+      }
+
+      const user: any = await ValidatorController.isMerchantCredentialCorrect(
+        res,
+        email,
+        password
+      );
+
+      if (!user) {
+        return Status400(res, 'Неверные учетные данные!');
+      }
+
+      const token = jwt.sign(
+        {
+          id: user.id,
+          email: user.email,
+          phone_number: user.phone_number,
+          fio: user.fio,
+          user_role: user.user_role,
+        },
+        secretKey
+      );
+      // send token
+      res.json({
+        code: 200,
+        token,
+        message: 'Авторизация прошла успешно. Добро пожаловать!',
+      });
+    } catch (error) {
+      StatusServerError(res);
+    }
+  }
+
+  static async registerMerchant(req: Request, res: Response) {
+    let transaction;
+
+    try {
+      const user_role = 'merchant';
+
+      const { email, password, fio, otp, phone_number } = req.body;
+      const requiredParams = {
+        email,
+        phone_number,
+        password,
+        fio,
+        otp,
+      };
+
+      const validation =
+        ValidatorController.validateRequiredFields(requiredParams);
+
+      if (!validation.valid) {
+        return Status400(res);
+      }
+
+      // check otp
+      const isOtpCorrect = await otpController.verifyOTP(email, otp);
+
+      if (!isOtpCorrect) {
+        return Status400(res, 'Неверный OTP код!');
+      }
+
+      const isEmailAvailable = await ValidatorController.isUserByEmailAvailable(
+        res,
+        email
+      );
+
+      if (isEmailAvailable) {
+        return Status400(res, 'Аккаунт уже существует!');
+      }
+
+      if (password.length <= 8) {
+        return Status400(res, 'Пароль слишком короткий!');
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Start transaction
+      transaction = await sequelize.transaction();
+
+      const user = await Users.create(
+        {
+          email,
+          phone_number,
+          password: hashedPassword,
+          fio,
+          user_role,
+        },
+        { transaction }
+      );
+
+      const user_id = user.id;
+
+      Merchant.create(
+        {
+          user_id,
+          store_name: '',
+        },
+        { transaction }
+      );
+
+      Status200(res, 'Пользователь успешно создан!');
+    } catch (error) {
+      // Rollback the transaction if an error occurs
+      if (transaction) await transaction.rollback();
       StatusServerError(res);
     }
   }

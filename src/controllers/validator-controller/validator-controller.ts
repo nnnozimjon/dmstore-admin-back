@@ -132,4 +132,35 @@ export class ValidatorController {
       });
     }
   }
+
+  static async isMerchantCredentialCorrect(
+    res: Response,
+    email: string,
+    password: string
+  ) {
+    try {
+      const user = await Users.findOne({
+        where: {
+          email,
+          user_role: 'merchant'
+        },
+      });
+
+      if (user?.email) {
+        // Compare the provided password with the hashed password in the database
+        const passwordMatch = await bcrypt.compare(password, user.password);
+        if (passwordMatch) {
+          return user;
+        }
+        return null; // Passwords do not match
+      }
+
+      return null; // user not found
+    } catch (error: any) {
+      return res.json({
+        code: 500,
+        message: 'Что-то пошло не так!',
+      });
+    }
+  }
 }

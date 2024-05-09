@@ -7,7 +7,7 @@ import { sequelize } from '@config/db';
 export class Merchant extends Model {
   id!: number;
   user_id!: number;
-  storeName!: string;
+  store_name!: string;
   description?: string;
   header_image?: string;
   store_image?: string;
@@ -28,7 +28,7 @@ Merchant.init(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    storeName: {
+    store_name: {
       type: DataTypes.STRING(255),
       allowNull: false,
     },

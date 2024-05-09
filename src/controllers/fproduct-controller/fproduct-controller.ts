@@ -1,13 +1,13 @@
 /* eslint-disable no-console */
-import { Request, Response } from "express";
-import { Status200, Status400, StatusServerError } from "generics/HttpStatuses";
-import { fn, literal, Op } from "sequelize";
+import { Request, Response } from 'express';
+import { Status200, Status400, StatusServerError } from 'generics/HttpStatuses';
+import { fn, literal, Op } from 'sequelize';
 
-import { Products } from "@models/product-model";
-import { baseUrl, frontApi } from "@utils/api-paths";
-import { Merchant } from "@models/merchant-model";
+import { Merchant } from '@models/merchant-model';
+import { Products } from '@models/product-model';
+import { baseUrl, frontApi } from '@utils/api-paths';
 
-const url = baseUrl + frontApi + "/product/image/";
+const url = baseUrl + frontApi + '/product/image/';
 
 export class FrontProductController {
   static async getByPagination(req: Request, res: Response) {
@@ -18,25 +18,20 @@ export class FrontProductController {
         category_id,
         sub_category_id,
         brand_id,
-        model_id,
         name,
         price,
         maxPrice,
-        year,
-        rooms,
-        condition,
         order,
         ids,
       } = req.query;
 
-      const productIds = ids ? String(ids)?.split(",") : [];
+      const productIds = ids ? String(ids).split(',') : [];
 
       const conditions = {
-        ...(productIds?.length !== 0 && { id: productIds }),
+        ...(productIds.length > 0 && { id: productIds }),
         ...(Number(category_id) && { category_id }),
         ...(Number(sub_category_id) && { sub_category_id }),
         ...(Number(brand_id) && { brand_id }),
-        ...(Number(model_id) && { model_id }),
         ...(name && {
           name: {
             [Op.like]: `%${name}%`,
@@ -49,20 +44,17 @@ export class FrontProductController {
             ...(maxPrice && { [Op.lte]: maxPrice }), // maxPrice
           },
         }),
-        ...(Number(year) && { year }),
-        ...(Number(rooms) && { rooms }),
-        ...(condition && { condition }),
-        status: "active",
+        status: 'active',
       };
 
       const orderCriteria: any =
-        order === "asc"
-          ? [["id", "ASC"]]
-          : order === "desc"
-            ? [["id", "DESC"]]
-            : order === "rand"
-              ? [fn("RAND")]
-              : [["id", "ASC"]];
+        order === 'asc'
+          ? [['id', 'ASC']]
+          : order === 'desc'
+            ? [['id', 'DESC']]
+            : order === 'rand'
+              ? [fn('RAND')]
+              : [['id', 'ASC']];
 
       // Perform the Sequelize query
       const products = await Products.findAll({
@@ -70,31 +62,24 @@ export class FrontProductController {
         order: orderCriteria,
         offset: (Number(pageNumber) - 1) * Number(pageSize),
         attributes: [
-          "id",
+          'id',
           [
             literal(
-              `CONCAT(:baseUrl, REPLACE(images, ",",CONCAT(',',:baseUrl)))`,
+              `CONCAT(:baseUrl, REPLACE(images, ",",CONCAT(',',:baseUrl)))`
             ),
-            "images",
+            'images',
           ],
-          "name",
-          [
-            literal(
-              "(CASE WHEN price_in_friday IS NOT NULL AND DAYOFWEEK(CURRENT_DATE) = 6 THEN price_in_friday ELSE price END)",
-            ),
-            "price",
-          ],
-          "sizes",
-          "colors",
-          "description",
-          "qty",
+          'name',
+          'price',
+          'description',
+          'qty',
         ],
         include: [
           {
             model: Merchant,
-            attributes: ["storeName", "id"],
+            attributes: ['storeName', 'id'],
             required: true,
-            as: "Merchant",
+            as: 'Merchant',
           },
         ],
         replacements: { baseUrl: url },
@@ -111,7 +96,7 @@ export class FrontProductController {
       });
 
       // Send the products as a response
-      Status200(res, "", { payload: flattenedProducts });
+      Status200(res, '', { payload: flattenedProducts });
     } catch (error) {
       console.log(error);
       StatusServerError(res);
@@ -135,46 +120,39 @@ export class FrontProductController {
       const item = await Products.findOne({
         where: {
           id: itemId,
-          status: "active",
+          status: 'active',
         },
         attributes: [
-          "id",
-          "created_by",
-          "category_id",
-          "sub_category_id",
-          "shipping",
-          "colors",
-          "sizes",
-          "created_at",
+          'id',
+          'created_by',
+          'category_id',
+          'sub_category_id',
+          'shipping',
+          'created_at',
           [
             literal(
-              `CONCAT(:baseUrl, REPLACE(images, ",",CONCAT(',',:baseUrl)))`,
+              `CONCAT(:baseUrl, REPLACE(images, ",",CONCAT(',',:baseUrl)))`
             ),
-            "images",
+            'images',
           ],
-          "name",
-          [
-            literal(
-              "(CASE WHEN price_in_friday IS NOT NULL AND DAYOFWEEK(CURRENT_DATE) = 6 THEN price_in_friday ELSE price END)",
-            ),
-            "price",
-          ],
-          "description",
-          "qty",
+          'name',
+          'price',
+          'description',
+          'qty',
         ],
         replacements: { baseUrl: url },
       });
 
       // Check if the item exists
       if (!item) {
-        return Status400(res, "Продукт не найден!");
+        return Status400(res, 'Продукт не найден!');
       }
 
       Status200(res, null, {
         payload: item,
       });
     } catch (error) {
-      console.error("Error fetching item:", error);
+      console.error('Error fetching item:', error);
       StatusServerError(res);
     }
   }
