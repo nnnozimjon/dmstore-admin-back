@@ -14,6 +14,7 @@ export class OrderItems extends Model {
   quantity!: number;
   color?: string;
   size?: string;
+  price!: string
 }
 
 OrderItems.init(
@@ -52,6 +53,10 @@ OrderItems.init(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    price: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    }
   },
   {
     sequelize,

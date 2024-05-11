@@ -1,5 +1,5 @@
-// export const baseUrl = 'http://localhost:8002';
-export const baseUrl = 'https://api.dushanbemarket.com';
+export const baseUrl = 'http://localhost:8002';
+// export const baseUrl = 'https://api.dushanbemarket.com';
 export const adminApi = '/admin/api/v1'; // admin panel api
 export const frontApi = '/store/api/v1'; // front api
 export const merchantApi = '/merchant/api/v1'; // merchant api

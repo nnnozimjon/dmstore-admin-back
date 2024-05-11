@@ -7,7 +7,6 @@ export class Category extends Model {
   name!: string;
   parent_id?: number | null;
   created_at!: Date;
-  updated_at?: Date | null;
 }
 
 Category.init(
@@ -30,10 +29,6 @@ Category.init(
       type: DataTypes.DATE,
       defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
       allowNull: false,
-    },
-    updated_at: {
-      type: DataTypes.DATE,
-      allowNull: true,
     },
   },
   {

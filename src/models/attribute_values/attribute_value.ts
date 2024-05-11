@@ -2,15 +2,13 @@ import { DataTypes, Model } from 'sequelize';
 
 import { sequelize } from '@config/db';
 
-import { Category } from '../category-model';
-
-export class Brand extends Model {
+export class AttributeValue extends Model {
   id!: number;
-  category_id!: number;
-  name!: string;
+  attribute_id!: number;
+  value!: string;
 }
 
-Brand.init(
+AttributeValue.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -18,23 +16,19 @@ Brand.init(
       primaryKey: true,
       autoIncrement: true,
     },
-    category_id: {
+    attribute_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: {
-        model: Category,
-        key: 'id',
-      },
     },
-    name: {
-      type: DataTypes.STRING(255),
+    value: {
+      type: DataTypes.STRING,
       allowNull: false,
     },
   },
   {
     sequelize,
-    modelName: 'Brand',
-    tableName: 'brands',
+    modelName: 'AttributeValue',
+    tableName: 'attribute_values',
     timestamps: false,
   }
 );

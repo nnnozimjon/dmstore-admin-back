@@ -11,8 +11,7 @@ export class Merchant extends Model {
   description?: string;
   header_image?: string;
   store_image?: string;
-  updated_at!: Date;
-
+  city_id!: number;
   // Additional methods or associations can be defined here
 }
 
@@ -41,8 +40,9 @@ Merchant.init(
     store_image: {
       type: DataTypes.STRING(255),
     },
-    updated_at: {
-      type: DataTypes.DATE,
+    city_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
   },
   {

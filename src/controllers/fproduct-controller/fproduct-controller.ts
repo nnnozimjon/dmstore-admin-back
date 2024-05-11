@@ -77,7 +77,7 @@ export class FrontProductController {
         include: [
           {
             model: Merchant,
-            attributes: ['storeName', 'id'],
+            attributes: ['store_name', 'id'],
             required: true,
             as: 'Merchant',
           },
@@ -90,7 +90,7 @@ export class FrontProductController {
         const { Merchant, ...rest } = product.toJSON();
         return {
           ...rest,
-          storeName: Merchant.storeName,
+          storeName: Merchant.store_name,
           created_by: Merchant.id,
         };
       });

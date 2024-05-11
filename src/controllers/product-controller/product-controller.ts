@@ -37,18 +37,6 @@ export class ProductController {
       if (!item) {
         return res.status(404).json({ error: 'Item not found' });
       }
-      const currentDate = new Date();
-      const daysOfWeek = [
-        'Sunday',
-        'Monday',
-        'Tuesday',
-        'Wednesday',
-        'Thursday',
-        'Friday',
-        'Saturday',
-      ];
-
-      const today = daysOfWeek[currentDate.getDay()];
 
       const images = item.images.split(',').map((url) => {
         return baseUrl + frontApi + '/product/image/' + url;
@@ -60,20 +48,11 @@ export class ProductController {
           created_by: item.id,
           images,
           name: item.name,
-          service_type: item.service_type,
-          price:
-            today === 'Friday' && item.price_in_friday != null
-              ? item.price_in_friday
-              : item.price,
+          price: item.price,
           description: item.description,
           discount: item.discount,
-          colors: item.colors,
           qty: item.qty,
-          condition: item.condition,
           shipping: item.shipping,
-          year: item.year,
-          vincode: item.vincode,
-          rooms: item.rooms,
         },
       });
     } catch (error) {
