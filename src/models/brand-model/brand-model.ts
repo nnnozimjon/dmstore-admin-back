@@ -2,7 +2,7 @@ import { DataTypes, Model } from 'sequelize';
 
 import { sequelize } from '@config/db';
 
-import { Category } from '../category-model';
+import { Category } from '@models/category-model';
 
 export class Brand extends Model {
   id!: number;

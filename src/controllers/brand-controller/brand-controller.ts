@@ -5,7 +5,7 @@ import { getAll as TGetAll } from 'generics/getAll';
 import { getById as TgetById } from 'generics/getById';
 
 import { ValidatorController } from '@controllers/validator-controller';
-import { Brand } from '@models/index';
+import { Brand } from '@models/brand-model';
 
 export class BrandController {
   static async getAll(req: Request, res: Response) {

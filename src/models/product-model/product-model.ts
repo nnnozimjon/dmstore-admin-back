@@ -2,7 +2,7 @@ import { DataTypes, Model } from 'sequelize';
 
 import { sequelize } from '@config/db';
 
-import { Merchant } from '..';
+import { Merchant } from '@models/merchant-model';
 
 // import { Brand } from '../brand-model'; // Assuming you have a Brand model
 // import { Category } from '../category-model'; // Assuming you have a Category model

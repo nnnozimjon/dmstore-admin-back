@@ -61,12 +61,6 @@ Router.post(ApiPaths.brand, Controllers.BrandController.create);
 Router.put(ApiPaths.brand + '/:id', Controllers.BrandController.update);
 Router.delete(ApiPaths.brand + '/:id', Controllers.BrandController.delete);
 
-// models
-Router.get(ApiPaths.model, Controllers.ModelController.getAll);
-Router.get(ApiPaths.model + '/:id', Controllers.ModelController.getById);
-Router.post(ApiPaths.model, Controllers.ModelController.create);
-Router.put(ApiPaths.model + '/:id', Controllers.ModelController.update);
-Router.delete(ApiPaths.model + '/:id', Controllers.ModelController.delete);
 
 // products
 Router.get(ApiPaths.product, Controllers.ProductController.getAll);

@@ -1,8 +1,7 @@
 import { DataTypes, Model } from 'sequelize';
 
 import { sequelize } from '@config/db';
-
-// import { Users } from '..';
+import { Users } from '@models/users-model';
 
 export class Merchant extends Model {
   id!: number;
@@ -52,3 +51,7 @@ Merchant.init(
     timestamps: false,
   }
 );
+
+Merchant.belongsTo(Users, { foreignKey: 'user_id' });
+
+export default Merchant;

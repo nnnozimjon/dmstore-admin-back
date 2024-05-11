@@ -1,9 +1,10 @@
 import { DataTypes, Model } from 'sequelize';
 
 import { sequelize } from '@config/db';
+import { Merchant } from '@models/merchant-model';
+import { Orders } from '@models/orders-model';
+import { Products } from '@models/product-model';
 import { Statuses } from '@models/statuses';
-
-import { Merchant, Products } from '..';
 
 export class OrderItems extends Model {
   id!: number;
@@ -14,7 +15,7 @@ export class OrderItems extends Model {
   quantity!: number;
   color?: string;
   size?: string;
-  price!: string
+  price!: string;
 }
 
 OrderItems.init(
@@ -56,7 +57,7 @@ OrderItems.init(
     price: {
       type: DataTypes.STRING,
       allowNull: false,
-    }
+    },
   },
   {
     sequelize,
@@ -66,10 +67,10 @@ OrderItems.init(
   }
 );
 
-// // Define associations
-
+// Define associations
 OrderItems.belongsTo(Products, { foreignKey: 'product_id' });
 OrderItems.belongsTo(Merchant, { foreignKey: 'store_id' });
 OrderItems.belongsTo(Statuses, { foreignKey: 'status_id' });
+OrderItems.belongsTo(Orders, { foreignKey: 'order_id' });
 
 export default OrderItems;

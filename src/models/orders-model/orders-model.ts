@@ -1,10 +1,8 @@
 import { DataTypes, Model } from 'sequelize';
 
 import { sequelize } from '@config/db';
-import { OrderItems } from '@models/order-items-model';
 import { Statuses } from '@models/statuses';
-
-import { Users } from '..';
+import { Users } from '@models/users-model';
 
 export class Orders extends Model {
   id!: number;
@@ -14,7 +12,7 @@ export class Orders extends Model {
   order_date?: Date;
   total_amount?: number;
   status_id!: number;
-  address!: string
+  address!: string;
 }
 
 Orders.init(
@@ -61,9 +59,6 @@ Orders.init(
     timestamps: false,
   }
 );
-
-Orders.hasMany(OrderItems, { foreignKey: 'order_id' });
-OrderItems.belongsTo(Orders, { foreignKey: 'order_id' });
 
 Orders.belongsTo(Users, { foreignKey: 'client_id' });
 Orders.belongsTo(Statuses, { foreignKey: 'status_id' });

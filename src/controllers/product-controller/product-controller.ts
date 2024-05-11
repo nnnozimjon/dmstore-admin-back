@@ -5,7 +5,7 @@ import { getAll as TGetAll } from 'generics/getAll';
 import { Status200, Status400, StatusServerError } from 'generics/HttpStatuses';
 
 import { ValidatorController } from '@controllers/validator-controller';
-import { Products } from '@models/index';
+import { Products } from '@models/product-model';
 import { baseUrl, frontApi } from '@utils/api-paths';
 
 export class ProductController {
