@@ -4,6 +4,7 @@ import { otpRateLimit } from 'generics/otpRateLimit';
 import multer from 'multer';
 
 import { Controllers } from '@controllers/index';
+import { TelegramController } from '@controllers/telegram.bot-controller';
 import { authenticateTokenClient } from '@generics/authenticateTokenClient';
 import { ApiPaths } from '@utils/api-paths';
 
@@ -60,7 +61,6 @@ Router.get(ApiPaths.brand + '/:id', Controllers.BrandController.getById);
 Router.post(ApiPaths.brand, Controllers.BrandController.create);
 Router.put(ApiPaths.brand + '/:id', Controllers.BrandController.update);
 Router.delete(ApiPaths.brand + '/:id', Controllers.BrandController.delete);
-
 
 // products
 Router.get(ApiPaths.product, Controllers.ProductController.getAll);

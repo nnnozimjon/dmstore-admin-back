@@ -99,5 +99,5 @@ Products.init(
 
 Products.belongsTo(Merchant, {
   foreignKey: 'created_by',
-  targetKey: 'user_id',
+  targetKey: 'id',
 });

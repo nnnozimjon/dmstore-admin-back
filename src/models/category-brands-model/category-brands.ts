@@ -2,15 +2,14 @@ import { DataTypes, Model } from 'sequelize';
 
 import { sequelize } from '@config/db';
 
-import { Category } from '@models/category-model';
 
-export class Brand extends Model {
+export class CategoryBrands extends Model {
   id!: number;
-  name!: string;
-  label!: string;
+  brand_id!: number;
+  category_id!: number;
 }
 
-Brand.init(
+CategoryBrands.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -19,18 +18,18 @@ Brand.init(
       autoIncrement: true,
     },
     name: {
-      type: DataTypes.STRING(255),
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     label: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
   },
   {
     sequelize,
     modelName: 'Brand',
-    tableName: 'brands',
+    tableName: 'category_brands',
     timestamps: false,
   }
 );

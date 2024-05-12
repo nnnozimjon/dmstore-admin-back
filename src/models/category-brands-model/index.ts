@@ -1,0 +1,1 @@
+export { CategoryBrands } from './category-brands'

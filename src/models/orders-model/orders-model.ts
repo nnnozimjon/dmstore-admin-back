@@ -1,7 +1,8 @@
 import { DataTypes, Model } from 'sequelize';
 
 import { sequelize } from '@config/db';
-import { Statuses } from '@models/statuses';
+import { OrderItems } from '@models/order-items-model';
+import { Statuses } from '@models/statuses-model';
 import { Users } from '@models/users-model';
 
 export class Orders extends Model {
@@ -59,6 +60,8 @@ Orders.init(
     timestamps: false,
   }
 );
+
+Orders.hasOne(OrderItems, { foreignKey: 'order_id' });
 
 Orders.belongsTo(Users, { foreignKey: 'client_id' });
 Orders.belongsTo(Statuses, { foreignKey: 'status_id' });

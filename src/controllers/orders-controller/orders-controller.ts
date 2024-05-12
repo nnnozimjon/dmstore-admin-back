@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { Request, Response } from "express";
 import { literal } from "sequelize";
 
@@ -13,8 +12,9 @@ import { Merchant } from "@models/merchant-model";
 import { OrderItems } from "@models/order-items-model";
 import { Orders } from "@models/orders-model";
 import { Products } from "@models/product-model";
-import { Statuses } from "@models/statuses";
+import { Statuses } from "@models/statuses-model";
 import { baseUrl, frontApi } from "@utils/api-paths";
+import { TelegramController } from "@controllers/telegram.bot-controller";
 
 const url = baseUrl + frontApi + "/product/image/";
 
@@ -26,7 +26,7 @@ export class OrdersController {
 
       const { type } = req.query;
 
-      const statuses = type === "completed" ? [4] : [1, 2, 3, 5, 6, 7, 8];
+      const statuses = type === "completed" ? [4, 5, 6, 7] : [1, 2, 3, 8];
 
       const userOrders = await Orders.findAll({
         where: {
@@ -66,18 +66,14 @@ export class OrdersController {
       });
 
       const formattedOrders = userOrders.flatMap((order: any) => {
-        const orderItems = order?.OrderItems?.map((or: any) => {
-          return {
-            order_id: order?.id,
-            order_item_id: or?.id,
-            order_status: or?.Status?.name,
-            product_id: or?.Product?.id,
-            product_img: or?.Product?.images,
-            product_name: or?.Product?.name,
-          };
-        });
-
-        return orderItems;
+        return {
+          order_id: order?.id,
+          order_item_id: order?.OrderItem?.id,
+          order_status: order?.OrderItem?.Status?.name,
+          product_id: order?.OrderItem?.Product?.id,
+          product_img: order?.OrderItem?.Product?.images,
+          product_name: order?.OrderItem?.Product?.name,
+        };
       });
 
       Status200(res, "", { payload: formattedOrders });
@@ -169,7 +165,7 @@ export class OrdersController {
 
         storeIds.add(storeDetails.id);
 
-        await OrderItems.create(
+        const orderItem = await OrderItems.create(
           {
             order_id: orderId,
             product_id,
@@ -178,9 +174,33 @@ export class OrdersController {
             status_id: 1,
             ...(size && { size }),
             ...(color && { color }),
+            price,
           },
           { transaction },
         );
+
+        const chatId = "6483120603";
+        const image = productDetails?.images?.split(",")[0];
+        const imageUrl = url + image;
+
+        const message = `
+📋 Заказ #${orderItem?.id}
+--------------------------------
+📞 Номер телефона: ${phone_number}
+🏠 Адрес: ${address}
+💬 Комментарий: ${comment}
+--------------------------------
+🛍️ Продукт:
+📦 Количество: ${quantity}
+🎨 Цвет: Красный
+📏 Размер: 43
+💰 Цена: ${price}
+💸 Макс.цена: ${Number(quantity)*Number(price)}
+🆔 ID: ${productDetails?.id}
+--------------------------------
+        `;
+
+        await TelegramController.sendTelegramImageMessage(chatId, imageUrl, message);
       }
 
       // Calculate additional charges for multiple stores

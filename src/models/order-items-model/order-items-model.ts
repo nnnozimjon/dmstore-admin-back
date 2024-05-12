@@ -2,9 +2,8 @@ import { DataTypes, Model } from 'sequelize';
 
 import { sequelize } from '@config/db';
 import { Merchant } from '@models/merchant-model';
-import { Orders } from '@models/orders-model';
 import { Products } from '@models/product-model';
-import { Statuses } from '@models/statuses';
+import { Statuses } from '@models/statuses-model';
 
 export class OrderItems extends Model {
   id!: number;
@@ -71,6 +70,3 @@ OrderItems.init(
 OrderItems.belongsTo(Products, { foreignKey: 'product_id' });
 OrderItems.belongsTo(Merchant, { foreignKey: 'store_id' });
 OrderItems.belongsTo(Statuses, { foreignKey: 'status_id' });
-OrderItems.belongsTo(Orders, { foreignKey: 'order_id' });
-
-export default OrderItems;

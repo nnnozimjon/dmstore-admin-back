@@ -11,6 +11,7 @@ import { OrdersController } from './orders-controller';
 import { otpController } from './otp-controller';
 import { ProductController } from './product-controller';
 import { ValidatorController } from './validator-controller';
+import { TelegramController } from './telegram.bot-controller';
 
 export const Controllers = {
   FrontProductController,
@@ -26,4 +27,5 @@ export const Controllers = {
   MerchantCategoryController,
   MailerController,
   OrdersController,
+  TelegramController
 };
