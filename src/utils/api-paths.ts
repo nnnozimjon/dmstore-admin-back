@@ -28,6 +28,9 @@ export const ApiPaths = {
   product: mergeAdminApi('/product'),
 
   // merchant paths
+  merchantRegister: mergeMerchantApi('/auth/sign-up'),
+  merchantLogin: mergeMerchantApi('/auth/sign-in'),
+
   merchantProduct: mergeMerchantApi('/product'),
   merchantOtp: mergeMerchantApi('/otp'),
   merchantCategory: mergeMerchantApi('/category'),

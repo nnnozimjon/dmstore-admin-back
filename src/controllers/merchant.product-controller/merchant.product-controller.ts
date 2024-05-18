@@ -12,6 +12,7 @@ import { literal } from "sequelize";
 import { ValidatorController } from "@controllers/validator-controller";
 import { Products } from "@models/product-model";
 import { baseUrl, frontApi } from "@utils/api-paths";
+import { Merchant } from "@models/merchant-model";
 
 const url = baseUrl + frontApi + "/product/image/";
 
@@ -39,9 +40,9 @@ export class MerchantProductController {
           "description",
           "qty",
           "shipping",
-          "colors",
-          "sizes",
-          "price_in_friday",
+          // "colors",
+          // "sizes",
+          // "price_in_friday",
           "category_id",
           "sub_category_id",
           [
@@ -113,23 +114,23 @@ export class MerchantProductController {
 
       const {
         name,
-        service_type,
+        // service_type,
         price, //number
-        price_in_friday, //number
+        // price_in_friday, //number
         discount, //number
         description,
         category_id,
-        feature_id,
+        // feature_id,
         brand_id,
-        model_id,
-        colors,
-        sizes,
+        // model_id,
+        // colors,
+        // sizes,
         qty, // number
-        condition,
+        // condition,
         shipping,
-        year, //number
-        vincode,
-        rooms,
+        // year, //number
+        // vincode,
+        // rooms,
         status,
       } = req.body;
 
@@ -137,7 +138,7 @@ export class MerchantProductController {
         created_by,
         images,
         name,
-        service_type,
+        // service_type,
         price,
         description,
         category_id,
@@ -166,45 +167,37 @@ export class MerchantProductController {
         return Status400(res, "Цена должно быть числом больше нуля.");
       }
 
-      // price_in_friday
-
-      if (price_in_friday) {
-        if (
-          (price_in_friday !== null && Number(price_in_friday) <= 0) ||
-          isNaN(Number(price_in_friday)) ||
-          Number(price_in_friday) > Number(price)
-        ) {
-          return Status400(
-            res,
-            "Пятничная цена должно быть числом больше нуля и меньше обычный цена.",
-          );
-        }
-      }
 
       const imageNames = await uploadImage(images, "products");
       const commaSeparatedString: string | undefined = imageNames?.join(",");
 
+      const merchantDetails = await Merchant.findOne({
+        where: {
+          user_id: created_by,
+        }
+      })
+
       await Products.create({
-        created_by,
+        created_by: merchantDetails?.id,
         images: commaSeparatedString,
         name,
-        service_type,
+        // service_type,
         price,
-        ...(Number(price_in_friday) && { price_in_friday }),
+        // ...(Number(price_in_friday) && { price_in_friday }),
         ...(Number(discount) && { discount }),
         description,
         category_id,
-        ...(Number(feature_id) && { feature_id }),
+        // ...(Number(feature_id) && { feature_id }),
         ...(Number(brand_id) && { brand_id }),
-        ...(Number(model_id) && { model_id }),
-        ...(String(colors) && { colors }),
-        ...(String(sizes) && { sizes }),
+        // ...(Number(model_id) && { model_id }),
+        // ...(String(colors) && { colors }),
+        // ...(String(sizes) && { sizes }),
         ...(Number(qty) && { qty }),
-        condition,
+        // condition,
         ...(shipping ? { shipping } : { shipping: "free" }),
-        year,
-        vincode,
-        rooms,
+        // year,
+        // vincode,
+        // rooms,
         status,
       });
 

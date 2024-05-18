@@ -4,7 +4,6 @@ import { otpRateLimit } from 'generics/otpRateLimit';
 import multer from 'multer';
 
 import { Controllers } from '@controllers/index';
-import { TelegramController } from '@controllers/telegram.bot-controller';
 import { authenticateTokenClient } from '@generics/authenticateTokenClient';
 import { ApiPaths } from '@utils/api-paths';
 
@@ -14,10 +13,11 @@ const Router = express.Router();
 
 // ///////////////////////////////////////////////////////////////////////////////
 //                                                                              //
-//                                Login - user                                  //
+//                                Login - users                                 //
 //                                                                              //
 //////////////////////////////////////////////////////////////////////////////////
 
+// #login-clients
 Router.post(ApiPaths.register, Controllers.AuthController.register);
 Router.post(ApiPaths.login, [otpRateLimit], Controllers.AuthController.signIn);
 
@@ -36,6 +36,19 @@ Router.post(
 Router.post(
   ApiPaths.isUserAvailable,
   Controllers.AuthController.isUserAvailable
+);
+
+// #login-merchants
+
+Router.post(
+  ApiPaths.merchantRegister,
+  Controllers.AuthController.registerMerchant
+);
+
+Router.post(
+  ApiPaths.merchantLogin,
+  [otpRateLimit],
+  Controllers.AuthController.signInMerchant
 );
 
 //////////////////////////////////////////////////////////////////////////////////
