@@ -11,14 +11,9 @@ const upload = multer();
 export const MerchantRouter = express.Router();
 
 MerchantRouter.post(
-  ApiPaths.merchantRegister,
-  Controllers.AuthController.registerMerchant
-);
-
-MerchantRouter.post(
   ApiPaths.merchantLogin,
   [otpRateLimit],
-  Controllers.AuthController.signInMerchant
+  Controllers.MerchantAuthController.signInMerchant
 );
 
 // category

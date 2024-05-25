@@ -20,6 +20,7 @@ export const ApiPaths = {
   brand: '/brand',
   model: '/model',
   product: '/product',
+  createUser: '/user',
 
   // merchant paths
   merchantRegister: '/auth/sign-up',

@@ -5,6 +5,8 @@ import { ApiPaths } from '@utils/api-paths';
 
 export const AdminRouter = express.Router();
 
+AdminRouter.post(ApiPaths.createUser, Controllers.UsersController.create);
+
 // categories
 AdminRouter.get(ApiPaths.category, Controllers.CategoryController.getAll);
 AdminRouter.get(
