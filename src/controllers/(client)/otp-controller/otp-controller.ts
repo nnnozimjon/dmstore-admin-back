@@ -3,7 +3,7 @@ import { Status200, Status400, StatusServerError } from 'generics/HttpStatuses';
 import sequelize from 'sequelize';
 
 import { OTP } from '@models/otp-model';
-import { MailerController } from '@controllers/mailer-controller';
+import { MailerController } from '@controllers/(general)/mailer-controller';
 
 export class otpController {
   static generateRandomCode() {

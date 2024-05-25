@@ -4,78 +4,60 @@ import { deleteById } from 'generics/deleteById';
 import { getAll as TGetAll } from 'generics/getAll';
 import { getById as TgetById } from 'generics/getById';
 
-import { ValidatorController } from '@controllers/validator-controller';
-import { Category } from '@models/category-model';
+import { ValidatorController } from '@controllers/(general)/validator-controller';
+import { Brand } from '@models/brand-model';
 
-export class CategoryController {
+export class BrandController {
   static async getAll(req: Request, res: Response) {
-    await TGetAll(Category, req, res, []);
-  }
-
-  static async getAllWithoutPagination(req: Request, res: Response) {
-    try {
-      const categories = await Category.findAll({
-        where: { parent_id: null },
-        include: {
-          model: Category,
-          as: 'sub',
-          attributes: ['id', 'name'],
-          required: false,
-        },
-        attributes: ['id', 'name'],
-      });
-
-      res.status(200).send(categories);
-    } catch (error) {
-      res.status(500).json({
-        code: 500,
-        error,
-        message: 'Что-то пошло не так!',
-      });
-    }
+    await TGetAll(Brand, req, res, []);
   }
 
   static async getById(req: Request, res: Response) {
-    await TgetById(Category, req, res);
+    await TgetById(Brand, req, res);
   }
 
   static async create(req: Request, res: Response) {
-    await TCreate(Category, req, res, ['name', 'parent_id'], ['name']);
+    await TCreate(
+      Brand,
+      req,
+      res,
+      ['name', 'category_id'],
+      ['name', 'category_id']
+    );
   }
 
   static async update(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const { name, parent_id } = req.body;
+      const { name } = req.body;
+
       const validation = ValidatorController.validateRequiredFields({
         id,
         name,
       });
+
       if (!validation.valid) {
         return res.status(400).json({
           message: validation.error,
           code: 400,
         });
       }
-      const existingCategory = await Category.findByPk(id);
+
+      const existingCategory = await Brand.findByPk(id);
       if (!existingCategory) {
         return res.status(404).json({
           code: 404,
-          message: 'Category not found.',
+          message: 'Brand not found.',
         });
       }
-      await existingCategory.update({
-        name,
-        parent_id,
-        updated_at: new Date(),
-      });
+      await existingCategory.update({ name, updated_at: new Date() });
       res.status(200).json({ payload: existingCategory });
     } catch (error: any) {
-      console.error('Error updating category:', error);
+      console.error('Error updating brand:', error);
       if (error.name === 'SequelizeUniqueConstraintError') {
         res.status(400).json({
           code: 400,
-          message: 'Category with the same name already exists.',
+          message: 'Brand with the same name already exists.',
         });
       } else {
         res.status(500).json({
@@ -88,6 +70,6 @@ export class CategoryController {
   }
 
   static async delete(req: Request, res: Response) {
-    await deleteById(Category, req, res);
+    await deleteById(Brand, req, res);
   }
 }

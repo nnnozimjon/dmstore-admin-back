@@ -1,7 +1,6 @@
 import { DataTypes, Model } from 'sequelize';
 
 import { sequelize } from '@config/db';
-
 import { Category } from '@models/category-model';
 
 export class Widgets extends Model {
@@ -10,6 +9,7 @@ export class Widgets extends Model {
   name!: string;
   image!: string;
   location!: string;
+  link?: string;
 }
 
 Widgets.init(
@@ -35,6 +35,10 @@ Widgets.init(
     location: {
       type: DataTypes.STRING(255),
       allowNull: false,
+    },
+    link: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
     },
   },
   {

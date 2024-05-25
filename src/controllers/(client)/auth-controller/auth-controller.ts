@@ -5,8 +5,8 @@ import { Status200, Status400, StatusServerError } from 'generics/HttpStatuses';
 import jwt from 'jsonwebtoken';
 
 import { sequelize } from '@config/db';
-import { otpController } from '@controllers/otp-controller';
-import { ValidatorController } from '@controllers/validator-controller';
+import { otpController } from '@controllers/(client)/otp-controller';
+import { ValidatorController } from '@controllers/(general)/validator-controller';
 import { Merchant } from '@models/merchant-model';
 import { Users } from '@models/users-model';
 import { secretKey } from '@utils/secret-key';

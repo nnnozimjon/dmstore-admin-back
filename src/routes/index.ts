@@ -140,7 +140,7 @@ Router.get(
   ApiPaths.merchantCategory,
   [authenticateTokenMerchant],
   Controllers.MerchantCategoryController.getAll
-);
+); // no idea of usage
 
 // product
 Router.get(
@@ -162,7 +162,7 @@ Router.post(
 );
 
 Router.put(
-  ApiPaths.merchantProduct,
+  ApiPaths.merchantProduct + '/:id',
   Controllers.MerchantProductController.update
 );
 
@@ -176,6 +176,6 @@ Router.post(
   ApiPaths.merchantOtp,
   [otpRateLimit],
   Controllers.otpController.generateAndSendOTP
-);
+); // no idea of usage
 
 export default Router;

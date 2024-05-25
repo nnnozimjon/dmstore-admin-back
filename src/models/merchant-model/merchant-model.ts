@@ -1,17 +1,14 @@
 import { DataTypes, Model } from 'sequelize';
 
 import { sequelize } from '@config/db';
-import { Users } from '@models/users-model';
 
 export class Merchant extends Model {
   id!: number;
-  user_id!: number;
   store_name!: string;
   description?: string;
   header_image?: string;
   store_image?: string;
   city_id!: number;
-  // Additional methods or associations can be defined here
 }
 
 Merchant.init(
@@ -21,10 +18,6 @@ Merchant.init(
       allowNull: false,
       primaryKey: true,
       autoIncrement: true,
-    },
-    user_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
     },
     store_name: {
       type: DataTypes.STRING(255),
@@ -51,7 +44,5 @@ Merchant.init(
     timestamps: false,
   }
 );
-
-Merchant.belongsTo(Users, { foreignKey: 'user_id' });
 
 export default Merchant;

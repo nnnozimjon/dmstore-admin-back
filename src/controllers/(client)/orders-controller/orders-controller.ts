@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { literal } from "sequelize";
 
 import { sequelize } from "@config/db";
-import { ValidatorController } from "@controllers/validator-controller";
+import { ValidatorController } from "@controllers/(general)/validator-controller";
 import {
   Status200,
   Status400,
@@ -14,7 +14,7 @@ import { Orders } from "@models/orders-model";
 import { Products } from "@models/product-model";
 import { Statuses } from "@models/statuses-model";
 import { baseUrl, frontApi } from "@utils/api-paths";
-import { TelegramController } from "@controllers/telegram.bot-controller";
+import { TelegramController } from "@controllers/(general)/telegram.bot-controller";
 
 const url = baseUrl + frontApi + "/product/image/";
 
