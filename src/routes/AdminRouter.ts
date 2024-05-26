@@ -1,11 +1,19 @@
 import express from 'express';
+import multer from 'multer';
 
 import { Controllers } from '@controllers/index';
 import { ApiPaths } from '@utils/api-paths';
 
+const upload = multer();
+
 export const AdminRouter = express.Router();
 
 AdminRouter.post(ApiPaths.createUser, Controllers.UsersController.create);
+AdminRouter.post(
+  ApiPaths.createMerchant,
+  [upload.fields([{ name: 'storeImage' }, { name: 'headerImage' }])],
+  Controllers.AdminMerchantController.create
+);
 
 // categories
 AdminRouter.get(ApiPaths.category, Controllers.CategoryController.getAll);

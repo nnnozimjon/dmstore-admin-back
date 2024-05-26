@@ -12,6 +12,7 @@ import { literal } from 'sequelize';
 import { ValidatorController } from '@controllers/(general)/validator-controller';
 import { Merchant } from '@models/merchant-model';
 import { Products } from '@models/product-model';
+import { UserStores } from '@models/user-stores-model';
 import { baseUrl, frontApi } from '@utils/api-paths';
 
 const url = baseUrl + frontApi + '/product/image/';
@@ -21,20 +22,30 @@ export class MerchantProductController {
     try {
       const { id } = req.params;
       const user = (req as any).user;
-      const created_by = user.id;
 
-      // Validate id
-      if (!id) {
-        return Status400(res, '');
+      const user_id = user.id;
+
+      const { store_id } = req.body;
+
+      if (!store_id) {
+        return Status400(res);
+      }
+
+      const store = await UserStores.findOne({
+        where: {
+          user_id,
+          store_id,
+        },
+      });
+
+      if (!store) {
+        return Status400(res, 'Магазин пользователя не найден!');
       }
 
       const productInfo = await Products.findOne({
         where: {
           id,
-        },
-        include: {
-          model: Merchant,
-          where: { user_id: created_by },
+          created_by: store_id,
         },
         attributes: [
           'id',
@@ -43,9 +54,6 @@ export class MerchantProductController {
           'description',
           'qty',
           'shipping',
-          // "colors",
-          // "sizes",
-          // "price_in_friday",
           'category_id',
           'sub_category_id',
           [
@@ -58,7 +66,6 @@ export class MerchantProductController {
         replacements: { baseUrl: url },
       });
 
-      // Check if product exists
       if (!productInfo) {
         return res
           .status(404)
@@ -79,14 +86,27 @@ export class MerchantProductController {
   static async getAll(req: Request, res: Response) {
     try {
       const user = (req as any).user;
-      const created_by = user.id;
+      const user_id = user.id;
+      const { store_id } = req.body;
+
+      const requiredParams = { store_id };
+
+      const validation =
+        ValidatorController.validateRequiredFields(requiredParams);
+
+      if (!validation.valid) {
+        return Status400(res);
+      }
+
+      const store = await UserStores.findOne({ where: { user_id, store_id } });
+
+      if (!store) {
+        return Status400(res, 'Магазин пользователя не найден!');
+      }
 
       const products = await Products.findAll({
-        include: {
-          model: Merchant,
-          where: {
-            user_id: created_by,
-          },
+        where: {
+          created_by: store_id,
         },
         order: [['id', 'DESC']],
         attributes: [
@@ -114,37 +134,27 @@ export class MerchantProductController {
       const data: any = req.files;
       const user = (req as any).user;
 
-      const created_by = user.id;
+      const user_id = user.id;
 
       const images = data.images;
 
       const {
         name,
-        // service_type,
-        price, //number
-        // price_in_friday, //number
-        discount, //number
+        price,
+        discount,
         description,
         category_id,
-        // feature_id,
         brand_id,
-        // model_id,
-        // colors,
-        // sizes,
-        qty, // number
-        // condition,
+        qty,
         shipping,
-        // year, //number
-        // vincode,
-        // rooms,
         status,
+        store_id,
       } = req.body;
 
       const requiredParams = {
-        created_by,
+        store_id,
         images,
         name,
-        // service_type,
         price,
         description,
         category_id,
@@ -161,52 +171,45 @@ export class MerchantProductController {
         return Status400(res);
       }
 
-      // Quantity || qty
       if (qty) {
         if ((qty !== null && Number(qty) <= 0) || isNaN(Number(qty))) {
           return Status400(res, 'Количество должно быть числом больше нуля.');
         }
       }
 
-      // Price , not null
       if ((price !== null && Number(price) <= 0) || isNaN(Number(price))) {
         return Status400(res, 'Цена должно быть числом больше нуля.');
+      }
+
+      const store = await UserStores.findOne({
+        where: {
+          user_id,
+          store_id,
+        },
+      });
+
+      if (!store) {
+        return Status400(res, 'Магазин пользователя не найден!');
       }
 
       const imageNames = await uploadImage(images, 'products');
       const commaSeparatedString: string | undefined = imageNames?.join(',');
 
-      const merchantDetails = await Merchant.findOne({
-        where: {
-          user_id: created_by,
-        },
-      });
-
       await Products.create({
-        created_by: merchantDetails?.id,
+        created_by: store_id,
         images: commaSeparatedString,
         name,
-        // service_type,
         price,
-        // ...(Number(price_in_friday) && { price_in_friday }),
         ...(Number(discount) && { discount }),
         description,
         category_id,
-        // ...(Number(feature_id) && { feature_id }),
         ...(Number(brand_id) && { brand_id }),
-        // ...(Number(model_id) && { model_id }),
-        // ...(String(colors) && { colors }),
-        // ...(String(sizes) && { sizes }),
         ...(Number(qty) && { qty }),
-        // condition,
         ...(shipping ? { shipping } : { shipping: 'free' }),
-        // year,
-        // vincode,
-        // rooms,
         status,
       });
 
-      return Status200(res, null);
+      return Status200(res);
     } catch (error) {
       console.log(error);
       return StatusServerError(res);
@@ -219,11 +222,6 @@ export class MerchantProductController {
       const { name, price, description, qty, shipping, images } = req.body;
       const user = (req as any).user;
       const created_by = user.id;
-
-      // const prevImages = [];
-      // const newImages = [];
-
-      // const deletedImages = [];
 
       // Validate id
       if (!id) {
@@ -303,8 +301,8 @@ export class MerchantProductController {
           model: Merchant,
           where: {
             user_id: created_by,
-          }
-        }
+          },
+        },
       });
 
       if (!product) {

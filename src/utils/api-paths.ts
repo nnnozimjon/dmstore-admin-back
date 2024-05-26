@@ -21,10 +21,12 @@ export const ApiPaths = {
   model: '/model',
   product: '/product',
   createUser: '/user',
+  createMerchant: '/merchant',
 
   // merchant paths
   merchantRegister: '/auth/sign-up',
   merchantLogin: '/auth/sign-in',
+  merchantStores: '/stores',
 
   merchantProduct: '/product',
   merchantOtp: '/otp',

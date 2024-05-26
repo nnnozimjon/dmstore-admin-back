@@ -1,0 +1,1 @@
+export { AdminMerchantController } from './merchant-contoller'

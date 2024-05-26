@@ -16,6 +16,12 @@ MerchantRouter.post(
   Controllers.MerchantAuthController.signInMerchant
 );
 
+MerchantRouter.get(
+  ApiPaths.merchantStores,
+  [authenticateTokenMerchant],
+  Controllers.MerchantStoreController.getAll
+);
+
 // category
 MerchantRouter.get(
   ApiPaths.merchantCategory,

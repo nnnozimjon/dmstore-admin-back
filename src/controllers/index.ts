@@ -1,5 +1,6 @@
 import { BrandController } from './(admin)/brand-controller';
 import { CategoryController } from './(admin)/category-controller';
+import { AdminMerchantController } from './(admin)/merchant-controller';
 import { ProductController } from './(admin)/product-controller';
 import { UsersController } from './(admin)/users-controller';
 import { AuthController } from './(client)/auth-controller';
@@ -14,6 +15,7 @@ import { ValidatorController } from './(general)/validator-controller';
 import { MerchantAuthController } from './(merchant)/auth-controller';
 import { MerchantCategoryController } from './(merchant)/category-controller';
 import { MerchantProductController } from './(merchant)/product-controller';
+import { MerchantStoreController } from './(merchant)/stores-controller';
 
 export const Controllers = {
   FrontProductController,
@@ -32,4 +34,6 @@ export const Controllers = {
   TelegramController,
   UsersController,
   MerchantAuthController,
+  AdminMerchantController,
+  MerchantStoreController
 };
