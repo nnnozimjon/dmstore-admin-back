@@ -39,7 +39,6 @@ export class MerchantStoreController {
       });
 
       Status200(res, null, {
-        code: 200,
         payload: mappedStores,
       });
     } catch (error) {

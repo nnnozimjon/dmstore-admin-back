@@ -16,6 +16,7 @@ import { MerchantAuthController } from './(merchant)/auth-controller';
 import { MerchantCategoryController } from './(merchant)/category-controller';
 import { MerchantProductController } from './(merchant)/product-controller';
 import { MerchantStoreController } from './(merchant)/stores-controller';
+import { MerchantOrdersController } from './(merchant)/orders-controller';
 
 export const Controllers = {
   FrontProductController,
@@ -35,5 +36,6 @@ export const Controllers = {
   UsersController,
   MerchantAuthController,
   AdminMerchantController,
-  MerchantStoreController
+  MerchantStoreController,
+  MerchantOrdersController
 };

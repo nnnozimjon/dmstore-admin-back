@@ -10,7 +10,6 @@ import path from 'path';
 import { literal } from 'sequelize';
 
 import { ValidatorController } from '@controllers/(general)/validator-controller';
-import { Merchant } from '@models/merchant-model';
 import { Products } from '@models/product-model';
 import { UserStores } from '@models/user-stores-model';
 import { baseUrl, frontApi } from '@utils/api-paths';
@@ -20,12 +19,12 @@ const url = baseUrl + frontApi + '/product/image/';
 export class MerchantProductController {
   static async getById(req: Request, res: Response) {
     try {
-      const { id } = req.params;
       const user = (req as any).user;
 
       const user_id = user.id;
 
-      const { store_id } = req.body;
+      const id = req.params.Id;
+      const store_id = req.params.storeId;
 
       if (!store_id) {
         return Status400(res);
@@ -46,6 +45,7 @@ export class MerchantProductController {
         where: {
           id,
           created_by: store_id,
+          status: 'active',
         },
         attributes: [
           'id',
@@ -87,7 +87,7 @@ export class MerchantProductController {
     try {
       const user = (req as any).user;
       const user_id = user.id;
-      const { store_id } = req.body;
+      const store_id = req.params.id;
 
       const requiredParams = { store_id };
 
@@ -107,6 +107,7 @@ export class MerchantProductController {
       const products = await Products.findAll({
         where: {
           created_by: store_id,
+          status: 'active',
         },
         order: [['id', 'DESC']],
         attributes: [
@@ -144,10 +145,10 @@ export class MerchantProductController {
         discount,
         description,
         category_id,
+        sub_category_id,
         brand_id,
         qty,
         shipping,
-        status,
         store_id,
       } = req.body;
 
@@ -201,12 +202,13 @@ export class MerchantProductController {
         name,
         price,
         ...(Number(discount) && { discount }),
+        ...(Number(sub_category_id) && { sub_category_id }),
         description,
         category_id,
         ...(Number(brand_id) && { brand_id }),
         ...(Number(qty) && { qty }),
         ...(shipping ? { shipping } : { shipping: 'free' }),
-        status,
+        status: 'review',
       });
 
       return Status200(res);
@@ -285,23 +287,31 @@ export class MerchantProductController {
 
   static async deleteById(req: Request, res: Response) {
     try {
-      const { id } = req.params;
       const user = (req as any).user;
-      const created_by = user.id;
+      const user_id = user.id;
+      const store_id = req.params.id;
+      const product_id = req.params.productId;
 
-      if (!id) {
-        return res.status(400).json({ error: 'Invalid ID' });
+      const requiredParams = { store_id };
+
+      const validation =
+        ValidatorController.validateRequiredFields(requiredParams);
+
+      if (!validation.valid) {
+        return Status400(res);
+      }
+
+      const store = await UserStores.findOne({ where: { user_id, store_id } });
+
+      if (!store) {
+        return Status400(res, 'Магазин пользователя не найден!');
       }
 
       const product = await Products.findOne({
         where: {
-          id,
-        },
-        include: {
-          model: Merchant,
-          where: {
-            user_id: created_by,
-          },
+          id: product_id,
+          created_by: store_id,
+          status: 'active',
         },
       });
 
@@ -309,29 +319,18 @@ export class MerchantProductController {
         return res.status(404).json({ message: 'Продукт не найден!' });
       }
 
-      const images = product.images.split(',');
-      images.forEach((image) => {
-        const imagePath = path.join(
-          __dirname,
-          '..',
-          '..',
-          'assets',
-          'products',
-          image
-        );
-        if (fs.existsSync(imagePath)) {
-          fs.unlinkSync(imagePath);
+      product.update(
+        { status: 'deleted' },
+        {
+          where: {
+            id: product_id,
+            created_by: store_id,
+            status: 'active',
+          },
         }
-      });
+      );
 
-      // Delete product from database
-      await Products.destroy({
-        where: {
-          id,
-        },
-      });
-
-      Status200(res, '');
+      Status200(res);
     } catch (error) {
       console.log(error);
       return StatusServerError(res);

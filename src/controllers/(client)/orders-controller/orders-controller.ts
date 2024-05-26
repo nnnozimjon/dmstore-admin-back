@@ -1,22 +1,22 @@
-import { Request, Response } from "express";
-import { literal } from "sequelize";
+import { Request, Response } from 'express';
+import { literal } from 'sequelize';
 
-import { sequelize } from "@config/db";
-import { ValidatorController } from "@controllers/(general)/validator-controller";
+import { sequelize } from '@config/db';
+import { TelegramController } from '@controllers/(general)/telegram.bot-controller';
+import { ValidatorController } from '@controllers/(general)/validator-controller';
 import {
   Status200,
   Status400,
   StatusServerError,
-} from "@generics/HttpStatuses";
-import { Merchant } from "@models/merchant-model";
-import { OrderItems } from "@models/order-items-model";
-import { Orders } from "@models/orders-model";
-import { Products } from "@models/product-model";
-import { Statuses } from "@models/statuses-model";
-import { baseUrl, frontApi } from "@utils/api-paths";
-import { TelegramController } from "@controllers/(general)/telegram.bot-controller";
+} from '@generics/HttpStatuses';
+import { Merchant } from '@models/merchant-model';
+import { OrderItems } from '@models/order-items-model';
+import { Orders } from '@models/orders-model';
+import { Products } from '@models/product-model';
+import { Statuses } from '@models/statuses-model';
+import { baseUrl, frontApi } from '@utils/api-paths';
 
-const url = baseUrl + frontApi + "/product/image/";
+const url = baseUrl + frontApi + '/product/image/';
 
 export class OrdersController {
   static async getAll(req: Request, res: Response) {
@@ -26,35 +26,35 @@ export class OrdersController {
 
       const { type } = req.query;
 
-      const statuses = type === "completed" ? [4, 5, 6, 7] : [1, 2, 3, 8];
+      const statuses = type === 'completed' ? [4, 5, 6, 7] : [1, 2, 3, 8];
 
       const userOrders = await Orders.findAll({
         where: {
           client_id,
         },
-        attributes: ["id"],
-        order: [["id", "DESC"]],
+        attributes: ['id'],
+        order: [['id', 'DESC']],
         include: [
           {
             model: OrderItems,
-            attributes: ["id"],
+            attributes: ['id'],
             include: [
               {
                 model: Products,
                 attributes: [
-                  "id",
-                  "name",
+                  'id',
+                  'name',
                   [
                     literal(
-                      `CONCAT(:baseUrl, REPLACE(images, ",",CONCAT(',',:baseUrl)))`,
+                      `CONCAT(:baseUrl, REPLACE(images, ",",CONCAT(',',:baseUrl)))`
                     ),
-                    "images",
+                    'images',
                   ],
                 ],
               },
               {
                 model: Statuses,
-                attributes: ["name", "id"],
+                attributes: ['name', 'id'],
               },
             ],
             where: {
@@ -76,7 +76,7 @@ export class OrdersController {
         };
       });
 
-      Status200(res, "", { payload: formattedOrders });
+      Status200(res, '', { payload: formattedOrders });
     } catch (error) {
       StatusServerError(res);
       console.log(error);
@@ -104,7 +104,7 @@ export class OrdersController {
       }
 
       if (products?.length === 0) {
-        return Status400(res, "Поле «Товары» не может быть пустым!");
+        return Status400(res, 'Поле «Товары» не может быть пустым!');
       }
 
       // Start transaction
@@ -121,7 +121,7 @@ export class OrdersController {
           status_id: 1,
           address,
         },
-        { transaction },
+        { transaction }
       );
 
       const orderId = order.id;
@@ -134,7 +134,7 @@ export class OrdersController {
           ValidatorController.validateRequiredFields(requiredParams);
 
         if (!validation.valid) {
-          return Status400(res, "Параметры поля «Товары» указаны неправильно!");
+          return Status400(res, 'Параметры поля «Товары» указаны неправильно!');
         }
 
         // check product exists
@@ -145,7 +145,7 @@ export class OrdersController {
         });
 
         if (!productDetails) {
-          return Status400(res, "ID продукта не найден!");
+          return Status400(res, 'ID продукта не найден!');
         }
 
         // check store exists
@@ -156,7 +156,7 @@ export class OrdersController {
         });
 
         if (!storeDetails) {
-          return Status400(res, "ID магазина не найден!");
+          return Status400(res, 'ID магазина не найден!');
         }
 
         const price = productDetails.price;
@@ -176,15 +176,15 @@ export class OrdersController {
             ...(color && { color }),
             price,
           },
-          { transaction },
+          { transaction }
         );
 
-        const chatId = "6483120603";
-        const image = productDetails?.images?.split(",")[0];
+        const chatId = '6483120603';
+        const image = productDetails.images.split(',')[0];
         const imageUrl = url + image;
 
         const message = `
-📋 Заказ #${orderItem?.id}
+📋 Заказ #${orderItem.id}
 --------------------------------
 📞 Номер телефона: ${phone_number}
 🏠 Адрес: ${address}
@@ -195,12 +195,16 @@ export class OrdersController {
 🎨 Цвет: Красный
 📏 Размер: 43
 💰 Цена: ${price}
-💸 Макс.цена: ${Number(quantity)*Number(price)}
-🆔 ID: ${productDetails?.id}
+💸 Макс.цена: ${Number(quantity) * Number(price)}
+🆔 ID: ${productDetails.id}
 --------------------------------
         `;
 
-        await TelegramController.sendTelegramImageMessage(chatId, imageUrl, message);
+        await TelegramController.sendTelegramImageMessage(
+          chatId,
+          imageUrl,
+          message
+        );
       }
 
       // Calculate additional charges for multiple stores

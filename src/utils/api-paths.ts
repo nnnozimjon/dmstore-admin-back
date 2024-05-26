@@ -27,6 +27,7 @@ export const ApiPaths = {
   merchantRegister: '/auth/sign-up',
   merchantLogin: '/auth/sign-in',
   merchantStores: '/stores',
+  merchantOrders: '/orders',
 
   merchantProduct: '/product',
   merchantOtp: '/otp',

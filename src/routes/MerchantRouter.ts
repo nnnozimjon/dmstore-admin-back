@@ -31,13 +31,13 @@ MerchantRouter.get(
 
 // product
 MerchantRouter.get(
-  ApiPaths.merchantProduct + '/:id',
+  ApiPaths.merchantProduct + '/store/:storeId/product/:Id',
   [authenticateTokenMerchant],
   Controllers.MerchantProductController.getById
 );
 
 MerchantRouter.get(
-  ApiPaths.merchantProduct,
+  ApiPaths.merchantProduct + '/store/:id',
   [authenticateTokenMerchant],
   Controllers.MerchantProductController.getAll
 );
@@ -54,7 +54,7 @@ MerchantRouter.put(
 );
 
 MerchantRouter.delete(
-  ApiPaths.merchantProduct + '/:id',
+  ApiPaths.merchantProduct + '/store/:id/product/:productId',
   [authenticateTokenMerchant],
   Controllers.MerchantProductController.deleteById
 );
@@ -64,3 +64,17 @@ MerchantRouter.post(
   [otpRateLimit],
   Controllers.otpController.generateAndSendOTP
 ); // no idea of usage
+
+// orders
+
+MerchantRouter.get(
+  ApiPaths.merchantOrders + '/store/:storeId',
+  [authenticateTokenMerchant],
+  Controllers.MerchantOrdersController.getAll
+);
+
+MerchantRouter.post(
+  ApiPaths.merchantOrders + '/store/:storeId/order/:orderId/:status',
+  [authenticateTokenMerchant],
+  Controllers.MerchantOrdersController.acceptBanchOrder
+);
