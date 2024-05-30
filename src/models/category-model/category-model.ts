@@ -6,7 +6,6 @@ export class Category extends Model {
   id!: number;
   name!: string;
   parent_id?: number | null;
-  created_at!: Date;
 }
 
 Category.init(
@@ -24,11 +23,6 @@ Category.init(
     parent_id: {
       type: DataTypes.INTEGER,
       allowNull: true,
-    },
-    created_at: {
-      type: DataTypes.DATE,
-      defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
-      allowNull: false,
     },
   },
   {

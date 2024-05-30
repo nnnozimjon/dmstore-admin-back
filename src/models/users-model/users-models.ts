@@ -1,6 +1,6 @@
-import { DataTypes, Model } from "sequelize";
+import { DataTypes, Model } from 'sequelize';
 
-import { sequelize } from "@config/db";
+import { sequelize } from '@config/db';
 
 export class Users extends Model {
   id!: number;
@@ -48,7 +48,7 @@ Users.init(
     },
     created_at: {
       type: DataTypes.DATE,
-      defaultValue: sequelize.literal("CURRENT_TIMESTAMP"),
+      defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
     },
     deleted_at: {
       type: DataTypes.DATE,
@@ -57,10 +57,10 @@ Users.init(
   },
   {
     sequelize,
-    modelName: "Users",
-    tableName: "users",
+    modelName: 'Users',
+    tableName: 'users',
     timestamps: false,
-  },
+  }
 );
 
 export default Users;

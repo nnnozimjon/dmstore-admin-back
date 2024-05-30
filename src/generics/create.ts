@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { Model, ModelCtor } from 'sequelize';
 
-import { ValidatorController } from '@controllers/validator-controller'; // Corrected the import
+import { ValidatorController } from '@controllers/(general)/validator-controller'; // Corrected the import
 
 type BodyType = Record<string, any>;
 

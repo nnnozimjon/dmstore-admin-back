@@ -1,0 +1,1 @@
+export { MerchantAuthController } from './auth-controller';

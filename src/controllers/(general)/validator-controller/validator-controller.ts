@@ -142,7 +142,7 @@ export class ValidatorController {
       const user = await Users.findOne({
         where: {
           email,
-          user_role: 'merchant'
+          user_role: ['merchant', 'admin']
         },
       });
 

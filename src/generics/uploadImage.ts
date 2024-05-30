@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 
-type FileRoute = 'categories' | 'products';
+type FileRoute = 'categories' | 'products' | 'merchants';
 
 export const uploadImage = async (
   images: Express.Multer.File[] | undefined,

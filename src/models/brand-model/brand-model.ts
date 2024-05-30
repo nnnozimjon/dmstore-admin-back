@@ -2,12 +2,11 @@ import { DataTypes, Model } from 'sequelize';
 
 import { sequelize } from '@config/db';
 
-import { Category } from '@models/category-model';
 
 export class Brand extends Model {
   id!: number;
   name!: string;
-  label!: string;
+  image!: string;
 }
 
 Brand.init(
@@ -22,9 +21,9 @@ Brand.init(
       type: DataTypes.STRING(255),
       allowNull: false,
     },
-    label: {
+    image: {
       type: DataTypes.STRING(255),
-      allowNull: true,
+      allowNull: false,
     },
   },
   {

@@ -17,11 +17,11 @@ CategoryBrands.init(
       primaryKey: true,
       autoIncrement: true,
     },
-    name: {
+    brand_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    label: {
+    category_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
