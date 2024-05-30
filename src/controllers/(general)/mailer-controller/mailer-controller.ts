@@ -7,9 +7,8 @@ const dotenv = require("dotenv");
 const path = require("path");
 
 const { parsed } = dotenv.config({
-  path: path.resolve(__dirname, "..", "..", "..", ".env"),
+  path: path.resolve(__dirname, "../../../../.env"),
 });
-
 export class MailerController {
   static async sendOtp(client_mail: string, otp: string) {
     const transporter = nodemailer.createTransport({
