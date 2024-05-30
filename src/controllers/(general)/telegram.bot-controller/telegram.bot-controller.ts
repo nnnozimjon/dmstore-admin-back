@@ -4,7 +4,7 @@ import TelegramBot from 'node-telegram-bot-api';
 import path from 'path';
 
 const { parsed } = dotenv.config({
-  path: path.resolve(__dirname, '..', '..', '..', '.env'),
+  path: path.resolve(__dirname, '../../../../.env'),
 });
 
 export class TelegramController {
