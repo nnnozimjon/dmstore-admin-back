@@ -10,7 +10,20 @@ import {
 import { Users } from '@models/users-model';
 
 export class UsersController {
-  static async getAll(req: Request, res: Response) {}
+  static async getAll(req: Request, res: Response) {
+    try {
+      const users = await Users.findAll({
+        where: {
+          user_role: 'client',
+        },
+        attributes: ['id', 'email', 'phone_number', 'fio', 'is_active'],
+      });
+
+      Status200(res, null, { payload: users });
+    } catch (error) {
+      StatusServerError(res);
+    }
+  }
 
   static async getById(req: Request, res: Response) {}
 

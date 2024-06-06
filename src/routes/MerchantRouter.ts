@@ -68,7 +68,7 @@ MerchantRouter.post(
 // orders
 
 MerchantRouter.get(
-  ApiPaths.merchantOrders + '/store/:storeId',
+  ApiPaths.merchantOrders + '/store/:storeId/status/:statusId',
   [authenticateTokenMerchant],
   Controllers.MerchantOrdersController.getAll
 );
@@ -77,4 +77,10 @@ MerchantRouter.post(
   ApiPaths.merchantOrders + '/store/:storeId/order/:orderId/:status',
   [authenticateTokenMerchant],
   Controllers.MerchantOrdersController.acceptBanchOrder
+);
+
+MerchantRouter.get(
+  ApiPaths.merchantOrders + '/:storeId',
+  [authenticateTokenMerchant],
+  Controllers.MerchantOrdersController.getAllStatusesCount
 );

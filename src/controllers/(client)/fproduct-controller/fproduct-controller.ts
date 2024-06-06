@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import { Request, Response } from 'express';
 import { Status200, Status400, StatusServerError } from 'generics/HttpStatuses';
-import { fn, literal, Op } from 'sequelize';
+import sequelize from 'sequelize';
 
 import { Merchant } from '@models/merchant-model';
 import { Products } from '@models/product-model';
@@ -34,14 +34,16 @@ export class FrontProductController {
         ...(Number(brand_id) && { brand_id }),
         ...(name && {
           name: {
-            [Op.like]: `%${name}%`,
+            [sequelize.Op.like]: `%${name}%`,
           },
         }),
         ...(Number(price) && {
           price: {
             // [Op.lte]: price
-            ...(price && !maxPrice ? { [Op.lte]: price } : { [Op.gte]: price }), // minPrice
-            ...(maxPrice && { [Op.lte]: maxPrice }), // maxPrice
+            ...(price && !maxPrice
+              ? { [sequelize.Op.lte]: price }
+              : { [sequelize.Op.gte]: price }), // minPrice
+            ...(maxPrice && { [sequelize.Op.lte]: maxPrice }), // maxPrice
           },
         }),
         status: 'active',
@@ -53,8 +55,20 @@ export class FrontProductController {
           : order === 'desc'
             ? [['id', 'DESC']]
             : order === 'rand'
-              ? [fn('RAND')]
+              ? [sequelize.fn('RAND')]
               : [['id', 'ASC']];
+
+      const totalCount = await Products.count({
+        where: conditions,
+        include: [
+          {
+            model: Merchant,
+            attributes: ['store_name', 'id'],
+            required: true,
+            as: 'Merchant',
+          },
+        ],
+      });
 
       // Perform the Sequelize query
       const products = await Products.findAll({
@@ -64,7 +78,7 @@ export class FrontProductController {
         attributes: [
           'id',
           [
-            literal(
+            sequelize.literal(
               `CONCAT(:baseUrl, REPLACE(images, ",",CONCAT(',',:baseUrl)))`
             ),
             'images',
@@ -95,8 +109,10 @@ export class FrontProductController {
         };
       });
 
+      const totalPages = Math.ceil(Number(totalCount) / Number(pageSize));
+
       // Send the products as a response
-      Status200(res, '', { payload: flattenedProducts });
+      Status200(res, '', { payload: flattenedProducts, totalPages });
     } catch (error) {
       console.log(error);
       StatusServerError(res);
@@ -130,7 +146,7 @@ export class FrontProductController {
           'shipping',
           'created_at',
           [
-            literal(
+            sequelize.literal(
               `CONCAT(:baseUrl, REPLACE(images, ",",CONCAT(',',:baseUrl)))`
             ),
             'images',
@@ -153,6 +169,33 @@ export class FrontProductController {
       });
     } catch (error) {
       console.error('Error fetching item:', error);
+      StatusServerError(res);
+    }
+  }
+
+  static async searchProduct(req: Request, res: Response) {
+    try {
+      const { query } = req.body;
+
+      const products = await Products.findAll({
+        where: {
+          [sequelize.Op.and]: sequelize.where(
+            sequelize.fn('LOWER', sequelize.col('name')),
+            {
+              [sequelize.Op.like]: `%${String(query).toLowerCase()}%`,
+            }
+          ),
+          status: 'active',
+        },
+        limit: 5,
+        attributes: ['id', 'name', 'category_id', 'sub_category_id'],
+      });
+
+      Status200(res, null, {
+        payload: products,
+      });
+    } catch (error) {
+      console.log(error);
       StatusServerError(res);
     }
   }

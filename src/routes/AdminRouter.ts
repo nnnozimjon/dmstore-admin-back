@@ -8,15 +8,20 @@ const upload = multer();
 
 export const AdminRouter = express.Router();
 
-AdminRouter.post(ApiPaths.createUser, Controllers.UsersController.create);
+AdminRouter.get(ApiPaths.users, Controllers.UsersController.getAll);
+
+AdminRouter.post(ApiPaths.users, Controllers.UsersController.create);
 AdminRouter.post(
-  ApiPaths.createMerchant,
+  ApiPaths.merchants,
   [upload.fields([{ name: 'storeImage' }, { name: 'headerImage' }])],
   Controllers.AdminMerchantController.create
 );
 
 // categories
-AdminRouter.get(ApiPaths.category, Controllers.CategoryController.getAll);
+AdminRouter.get(
+  ApiPaths.category,
+  Controllers.CategoryController.getAllWithoutPagination
+);
 AdminRouter.get(
   ApiPaths.category + '/:id',
   Controllers.CategoryController.getById
@@ -53,4 +58,15 @@ AdminRouter.put(
 AdminRouter.delete(
   ApiPaths.product + '/:id',
   Controllers.ProductController.delete
+);
+
+// widgets
+AdminRouter.get(ApiPaths.widgets, Controllers.AdminWidgetsController.getAll);
+
+// payments
+AdminRouter.get(ApiPaths.payments, Controllers.AdminPaymentsController.getAll);
+AdminRouter.post(
+  ApiPaths.payments,
+  [upload.single('image')],
+  Controllers.AdminPaymentsController.create
 );
