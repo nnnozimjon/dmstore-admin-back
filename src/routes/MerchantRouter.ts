@@ -1,6 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 
+import { MerchantStoreController } from '@controllers/(merchant)/stores-controller';
 import { Controllers } from '@controllers/index';
 import { authenticateTokenMerchant } from '@generics/authenticatToken';
 import { otpRateLimit } from '@generics/otpRateLimit';
@@ -20,6 +21,23 @@ MerchantRouter.get(
   ApiPaths.merchantStores,
   [authenticateTokenMerchant],
   Controllers.MerchantStoreController.getAll
+);
+
+MerchantRouter.get(
+  ApiPaths.merchantStores + '/store/:storeId',
+  [authenticateTokenMerchant],
+  MerchantStoreController.getStoreInfo
+);
+
+MerchantRouter.put(
+  ApiPaths.merchantStores + '/store/:storeId',
+  [authenticateTokenMerchant, upload.single('storeImage')],
+  MerchantStoreController.updateStoreInfo
+);
+
+MerchantRouter.get(
+  ApiPaths.merchantStores + '/image/:image',
+  Controllers.ImageController.storeImage
 );
 
 // category
