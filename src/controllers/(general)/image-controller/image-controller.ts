@@ -16,6 +16,20 @@ export class ImageController {
     });
   }
 
+    static async storeImage(req: Request, res: Response) {
+    const image = req.params.image;
+
+    fs.readFile(`src/assets/merchants/${image}`, (err, data) => {
+      if (err) {
+        console.error(`Error reading file: ${err}`);
+        return res.status(500).send('Error reading file');
+      }
+      const contentType = ImageController.getContentType(image);
+      res.setHeader('Content-Type', contentType);
+      res.send(data);
+    });
+  }
+
   static async widgetImage(req: Request, res: Response) {
     const image = req.params.image;
 

@@ -5,6 +5,7 @@ import { getAll as TGetAll } from 'generics/getAll';
 import { getById as TgetById } from 'generics/getById';
 
 import { ValidatorController } from '@controllers/(general)/validator-controller';
+import { Status200, StatusServerError } from '@generics/HttpStatuses';
 import { Category } from '@models/category-model';
 
 export class CategoryController {
@@ -18,20 +19,16 @@ export class CategoryController {
         where: { parent_id: null },
         include: {
           model: Category,
-          as: 'sub',
-          attributes: ['id', 'name'],
+          as: 'subCategories',
+          attributes: ['id', 'name', 'is_active'],
           required: false,
         },
-        attributes: ['id', 'name'],
+        attributes: ['id', 'name', 'is_active'],
       });
 
-      res.status(200).send(categories);
+      Status200(res, null, { payload: categories });
     } catch (error) {
-      res.status(500).json({
-        code: 500,
-        error,
-        message: 'Что-то пошло не так!',
-      });
+      StatusServerError(res);
     }
   }
 

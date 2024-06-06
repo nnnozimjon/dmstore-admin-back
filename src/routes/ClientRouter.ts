@@ -1,9 +1,9 @@
 import express from 'express';
 
 import { Controllers } from '@controllers/index';
+import { authenticateTokenClient } from '@generics/authenticateTokenClient';
 import { otpRateLimit } from '@generics/otpRateLimit';
 import { ApiPaths } from '@utils/api-paths';
-import { authenticateTokenClient } from '@generics/authenticateTokenClient';
 
 export const ClientRouter = express.Router();
 
@@ -70,4 +70,9 @@ ClientRouter.get(
   ApiPaths.frontOrderProduct,
   [authenticateTokenClient],
   Controllers.OrdersController.getAll
+);
+
+ClientRouter.post(
+  ApiPaths.frontProduct + '/search',
+  Controllers.FrontProductController.searchProduct
 );

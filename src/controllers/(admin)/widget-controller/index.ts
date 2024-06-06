@@ -1,0 +1,1 @@
+export { AdminWidgetsController } from './admin-widget-controller';

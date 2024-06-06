@@ -10,6 +10,7 @@ import path from 'path';
 import { literal } from 'sequelize';
 
 import { ValidatorController } from '@controllers/(general)/validator-controller';
+import { Merchant } from '@models/merchant-model';
 import { Products } from '@models/product-model';
 import { UserStores } from '@models/user-stores-model';
 import { baseUrl, frontApi } from '@utils/api-paths';
@@ -88,6 +89,7 @@ export class MerchantProductController {
       const user = (req as any).user;
       const user_id = user.id;
       const store_id = req.params.id;
+      const { pageNumber = 1, pageSize = 20 } = req.query;
 
       const requiredParams = { store_id };
 
@@ -104,7 +106,23 @@ export class MerchantProductController {
         return Status400(res, 'Магазин пользователя не найден!');
       }
 
+      const totalCount = await Products.count({
+        where: {
+          created_by: store_id,
+          status: 'active',
+        },
+        include: [
+          {
+            model: Merchant,
+            attributes: ['store_name', 'id'],
+            required: true,
+            as: 'Merchant',
+          },
+        ],
+      });
+
       const products = await Products.findAll({
+        offset: (Number(pageNumber) - 1) * Number(pageSize),
         where: {
           created_by: store_id,
           status: 'active',
@@ -121,9 +139,12 @@ export class MerchantProductController {
           ],
         ],
         replacements: { baseUrl: url },
+        limit: Number(pageSize),
       });
 
-      Status200(res, '', { payload: products });
+      const totalPages = Math.ceil(Number(totalCount) / Number(pageSize));
+
+      Status200(res, '', { payload: products, totalPages });
     } catch (error) {
       console.log(error);
       return StatusServerError(res);

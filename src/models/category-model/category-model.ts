@@ -6,6 +6,7 @@ export class Category extends Model {
   id!: number;
   name!: string;
   parent_id?: number | null;
+  is_active!: boolean;
 }
 
 Category.init(
@@ -24,6 +25,10 @@ Category.init(
       type: DataTypes.INTEGER,
       allowNull: true,
     },
+    is_active: {
+      type: DataTypes.TINYINT,
+      allowNull: true,
+    },
   },
   {
     sequelize,
@@ -33,5 +38,5 @@ Category.init(
   }
 );
 
-Category.hasMany(Category, { foreignKey: 'parent_id', as: 'sub' });
+Category.hasMany(Category, { foreignKey: 'parent_id', as: 'subCategories' });
 // Category.belongsTo(Category, { foreignKey: 'parent_id', as: 'sub' });
