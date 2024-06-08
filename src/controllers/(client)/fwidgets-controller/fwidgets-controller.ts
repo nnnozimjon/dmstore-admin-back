@@ -30,6 +30,7 @@ export class WidgetsController {
           'id',
           'category_id',
           'name',
+          'link',
           [
             literal(
               `CONCAT(:baseUrl, REPLACE(image, ",",CONCAT(',',:baseUrl)))`

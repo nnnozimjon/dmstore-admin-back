@@ -192,8 +192,6 @@ export class OrdersController {
 --------------------------------
 🛍️ Продукт:
 📦 Количество: ${quantity}
-🎨 Цвет: Красный
-📏 Размер: 43
 💰 Цена: ${price}
 💸 Макс.цена: ${Number(quantity) * Number(price)}
 🆔 ID: ${productDetails.id}
@@ -208,7 +206,7 @@ export class OrdersController {
       }
 
       // Calculate additional charges for multiple stores
-      const additionalCharges = storeIds.size * 25;
+      const additionalCharges = storeIds.size * 0;
 
       totalAmount += additionalCharges;
 
@@ -222,7 +220,6 @@ export class OrdersController {
     } catch (error) {
       // Rollback the transaction if an error occurs
       if (transaction) await transaction.rollback();
-      console.log(error);
       StatusServerError(res);
     }
   }
