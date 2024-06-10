@@ -1,3 +1,4 @@
+import bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
 import fs from 'fs';
 import path from 'path';
@@ -12,6 +13,7 @@ import { uploadImage } from '@generics/uploadImage';
 import { Cities } from '@models/cities-model';
 import { Merchant } from '@models/merchant-model';
 import { UserStores } from '@models/user-stores-model';
+import { Users } from '@models/users-model';
 import { baseUrl, merchantApi } from '@utils/api-paths';
 
 const url = baseUrl + merchantApi + '/stores/image/';
@@ -199,6 +201,69 @@ export class MerchantStoreController {
         {
           where: {
             id: store_id,
+          },
+        }
+      );
+
+      Status200(res);
+    } catch (error) {
+      StatusServerError(res);
+    }
+  }
+
+  static async changePassword(req: Request, res: Response) {
+    try {
+      const user = (req as any).user;
+      const user_id = user.id;
+
+      const { prevPassword, newPassword } = req.body;
+
+      const requiredParams = { prevPassword, newPassword };
+
+      const validation =
+        ValidatorController.validateRequiredFields(requiredParams);
+
+      if (!validation.valid) {
+        return Status400(res);
+      }
+
+      const requester = await Users.findOne({
+        where: {
+          id: user_id,
+        },
+      });
+
+      const email = requester?.email;
+
+      if (email === undefined) {
+        return res
+          .status(404)
+          .json({ code: 404, message: 'Пользователь не найден' });
+      }
+
+      const isUserCredentialCorrect =
+        await ValidatorController.isMerchantCredentialCorrect(
+          res,
+          email,
+          prevPassword
+        );
+
+      if (!isUserCredentialCorrect) {
+        return res.status(404).json({
+          code: 404,
+          message: 'Неправильный пароль, попробуйте еще раз!',
+        });
+      }
+
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+      await Users.update(
+        {
+          password: hashedPassword,
+        },
+        {
+          where: {
+            email,
           },
         }
       );

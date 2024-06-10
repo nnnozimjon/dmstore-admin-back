@@ -30,6 +30,12 @@ MerchantRouter.get(
 );
 
 MerchantRouter.put(
+  ApiPaths.merchantStores + '/change-password',
+  [authenticateTokenMerchant],
+  MerchantStoreController.changePassword
+);
+
+MerchantRouter.put(
   ApiPaths.merchantStores + '/store/:storeId',
   [authenticateTokenMerchant, upload.single('storeImage')],
   MerchantStoreController.updateStoreInfo
