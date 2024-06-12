@@ -109,7 +109,7 @@ export class MerchantProductController {
       const totalCount = await Products.count({
         where: {
           created_by: store_id,
-          status: 'active',
+          status: ['active', 'review'],
         },
         include: [
           {
@@ -125,12 +125,13 @@ export class MerchantProductController {
         offset: (Number(pageNumber) - 1) * Number(pageSize),
         where: {
           created_by: store_id,
-          status: 'active',
+          status: ['active', 'review'],
         },
         order: [['id', 'DESC']],
         attributes: [
           'id',
           'name',
+          'status',
           [
             literal(
               `CONCAT(:baseUrl, REPLACE(images, ",",CONCAT(',',:baseUrl)))`
