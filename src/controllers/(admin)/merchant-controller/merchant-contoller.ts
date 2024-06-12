@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { Request, Response } from 'express';
+import sequelize from 'sequelize';
 
 import { ValidatorController } from '@controllers/(general)/validator-controller';
 import {
@@ -9,9 +10,40 @@ import {
 } from '@generics/HttpStatuses';
 import { uploadImage } from '@generics/uploadImage';
 import { Merchant } from '@models/merchant-model';
+import { baseUrl, frontApi } from '@utils/api-paths';
 
+const url = baseUrl + frontApi + '/merchant/image/';
 export class AdminMerchantController {
   static async getAll(req: Request, res: Response) {
+    try {
+      const { pageNumber = 1, pageSize = 20 } = req.query;
+
+      const totalCount = await Merchant.count();
+
+      const stores = await Merchant.findAll({
+        offset: (Number(pageNumber) - 1) * Number(pageSize),
+        attributes: [
+          'id',
+          [
+            sequelize.literal(
+              `CONCAT(:baseUrl, REPLACE(store_image, ",",CONCAT(',',:baseUrl)))`
+            ),
+            'image',
+          ],
+          'store_name',
+          'description',
+          'city_id',
+        ],
+        replacements: { baseUrl: url },
+        limit: Number(pageSize),
+      });
+
+      const totalPages = Math.ceil(Number(totalCount) / Number(pageSize));
+
+      Status200(res, null, { payload: stores, totalPages });
+    } catch (error) {
+      StatusServerError(res);
+    }
   }
 
   static async getById(req: Request, res: Response) {}

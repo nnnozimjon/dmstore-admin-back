@@ -157,10 +157,7 @@ export class ValidatorController {
 
       return null; // user not found
     } catch (error: any) {
-      return res.json({
-        code: 500,
-        message: 'Что-то пошло не так!',
-      });
+      StatusServerError(res);
     }
   }
 }
