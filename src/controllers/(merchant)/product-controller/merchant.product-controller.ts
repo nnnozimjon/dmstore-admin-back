@@ -46,7 +46,7 @@ export class MerchantProductController {
         where: {
           id,
           created_by: store_id,
-          status: 'active',
+          status: ['active', 'review'],
         },
         attributes: [
           'id',
