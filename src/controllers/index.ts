@@ -6,6 +6,7 @@ import { ProductController } from './(admin)/product-controller';
 import { UsersController } from './(admin)/users-controller';
 import { AdminWidgetsController } from './(admin)/widget-controller';
 import { AuthController } from './(client)/auth-controller';
+import { FrontCategoryController } from './(client)/category-controller';
 import { FrontProductController } from './(client)/fproduct-controller';
 import { WidgetsController } from './(client)/fwidgets-controller';
 import { OrdersController } from './(client)/orders-controller';
@@ -42,4 +43,5 @@ export const Controllers = {
   MerchantOrdersController,
   AdminWidgetsController,
   AdminPaymentsController,
+  FrontCategoryController,
 };

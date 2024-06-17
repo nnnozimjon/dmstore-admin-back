@@ -1,0 +1,1 @@
+export { FrontCategoryController } from './category-controller'

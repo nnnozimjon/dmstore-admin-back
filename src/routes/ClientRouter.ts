@@ -42,11 +42,6 @@ ClientRouter.get(
 );
 
 ClientRouter.get(
-  ApiPaths.frontCategory,
-  Controllers.CategoryController.getAllWithoutPagination
-);
-
-ClientRouter.get(
   ApiPaths.frontProduct + '/image/:image',
   Controllers.ImageController.productImage
 );
@@ -75,4 +70,9 @@ ClientRouter.get(
 ClientRouter.post(
   ApiPaths.frontProduct + '/search',
   Controllers.FrontProductController.searchProduct
+);
+
+ClientRouter.get(
+  ApiPaths.frontCategory,
+  Controllers.FrontCategoryController.getAll
 );
