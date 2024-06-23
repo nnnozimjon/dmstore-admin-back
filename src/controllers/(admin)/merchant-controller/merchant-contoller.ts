@@ -10,9 +10,9 @@ import {
 } from '@generics/HttpStatuses';
 import { uploadImage } from '@generics/uploadImage';
 import { Merchant } from '@models/merchant-model';
-import { baseUrl, frontApi } from '@utils/api-paths';
+import { baseUrl, merchantApi } from '@utils/api-paths';
 
-const url = baseUrl + frontApi + '/merchant/image/';
+const url = baseUrl + merchantApi + '/stores/image/';
 export class AdminMerchantController {
   static async getAll(req: Request, res: Response) {
     try {
