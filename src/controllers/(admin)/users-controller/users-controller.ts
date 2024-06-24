@@ -12,14 +12,22 @@ import { Users } from '@models/users-model';
 export class UsersController {
   static async getAll(req: Request, res: Response) {
     try {
+      const { pageNumber = 1, pageSize = 20 } = req.query;
+
+      const totalCount = await Users.count();
+
       const users = await Users.findAll({
+        offset: (Number(pageNumber) - 1) * Number(pageSize),
         where: {
           user_role: 'client',
         },
         attributes: ['id', 'email', 'phone_number', 'fio', 'is_active'],
+        limit: Number(pageSize),
       });
 
-      Status200(res, null, { payload: users });
+       const totalPages = Math.ceil(Number(totalCount) / Number(pageSize));
+
+      Status200(res, null, { payload: users, totalPages });
     } catch (error) {
       StatusServerError(res);
     }
